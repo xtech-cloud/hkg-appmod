@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using XTC.oelMVCS;
 
-namespace HKG.Module.Metatable.Proto
+namespace HKG.Module.Collector.Proto
 {
     public class Field
     {
@@ -169,6 +169,45 @@ namespace HKG.Module.Metatable.Proto
 
     }//class
 
+        public class DocumentScrapeRequest
+        {
+            public DocumentScrapeRequest()
+            {
+                _name = new Field();
+                _keyword = new string[0];
+                _address = new Field();
+                _attribute = new Field();
+
+            }
+            [JsonPropertyName("name")]
+            public Field _name {get;set;}
+            [JsonPropertyName("keyword")]
+            public string[] _keyword {get;set;}
+            [JsonPropertyName("address")]
+            public Field _address {get;set;}
+            [JsonPropertyName("attribute")]
+            public Field _attribute {get;set;}
+
+        }
+    
+        public class DocumentListResponse
+        {
+            public DocumentListResponse()
+            {
+                _status = new Status();
+                _total = new Field();
+                _entity = new DocumentEntity[0];
+
+            }
+            [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("total")]
+            public Field _total {get;set;}
+            [JsonPropertyName("entity")]
+            public DocumentEntity[] _entity {get;set;}
+
+        }
+    
         public class Status
         {
             public Status()
@@ -196,15 +235,27 @@ namespace HKG.Module.Metatable.Proto
 
         }
     
-        public class ImportYamlRequest
+        public class DocumentEntity
         {
-            public ImportYamlRequest()
+            public DocumentEntity()
             {
-                _content = new Field();
+                _name = new Field();
+                _keyword = new string[0];
+                _address = new Field();
+                _rawText = new Field();
+                _crawledAt = new Field();
 
             }
-            [JsonPropertyName("content")]
-            public Field _content {get;set;}
+            [JsonPropertyName("name")]
+            public Field _name {get;set;}
+            [JsonPropertyName("keyword")]
+            public string[] _keyword {get;set;}
+            [JsonPropertyName("address")]
+            public Field _address {get;set;}
+            [JsonPropertyName("rawText")]
+            public Field _rawText {get;set;}
+            [JsonPropertyName("crawledAt")]
+            public Field _crawledAt {get;set;}
 
         }
     
@@ -220,102 +271,6 @@ namespace HKG.Module.Metatable.Proto
             public Field _offset {get;set;}
             [JsonPropertyName("count")]
             public Field _count {get;set;}
-
-        }
-    
-        public class FindRequest
-        {
-            public FindRequest()
-            {
-                _name = new Field();
-
-            }
-            [JsonPropertyName("name")]
-            public Field _name {get;set;}
-
-        }
-    
-        public class SourceEntity
-        {
-            public SourceEntity()
-            {
-                _name = new Field();
-                _address = new Field();
-                _expression = new Field();
-
-            }
-            [JsonPropertyName("name")]
-            public Field _name {get;set;}
-            [JsonPropertyName("address")]
-            public Field _address {get;set;}
-            [JsonPropertyName("expression")]
-            public Field _expression {get;set;}
-
-        }
-    
-        public class SourceListResponse
-        {
-            public SourceListResponse()
-            {
-                _status = new Status();
-                _total = new Field();
-                _entity = new SourceEntity[0];
-
-            }
-            [JsonPropertyName("status")]
-            public Status _status {get;set;}
-            [JsonPropertyName("total")]
-            public Field _total {get;set;}
-            [JsonPropertyName("entity")]
-            public SourceEntity[] _entity {get;set;}
-
-        }
-    
-        public class VocabularyEntity
-        {
-            public VocabularyEntity()
-            {
-                _name = new Field();
-                _label = new string[0];
-
-            }
-            [JsonPropertyName("name")]
-            public Field _name {get;set;}
-            [JsonPropertyName("label")]
-            public string[] _label {get;set;}
-
-        }
-    
-        public class VocabularyListResponse
-        {
-            public VocabularyListResponse()
-            {
-                _status = new Status();
-                _total = new Field();
-                _entity = new VocabularyEntity[0];
-
-            }
-            [JsonPropertyName("status")]
-            public Status _status {get;set;}
-            [JsonPropertyName("total")]
-            public Field _total {get;set;}
-            [JsonPropertyName("entity")]
-            public VocabularyEntity[] _entity {get;set;}
-
-        }
-    
-        public class VocabularyFindResponse
-        {
-            public VocabularyFindResponse()
-            {
-                _status = new Status();
-                _entity = new VocabularyEntity[0];
-
-            }
-            [JsonPropertyName("status")]
-            public Status _status {get;set;}
-            [JsonPropertyName("entity")]
-            public VocabularyEntity[] _entity {get;set;}
 
         }
     
