@@ -1,0 +1,15 @@
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>hkg-metatable-bridge</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="oelMVCS">
+      <HintPath>..\..\..\3rd\oelMVCS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
