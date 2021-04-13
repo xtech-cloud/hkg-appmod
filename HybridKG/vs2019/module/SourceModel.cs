@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using XTC.oelMVCS;
 
 namespace HKG.Module.Metatable
@@ -11,6 +12,9 @@ namespace HKG.Module.Metatable
         public class SourceStatus : Model.Status
         {
             public const string NAME = "Metatable.SourceStatus";
+
+            public List<Proto.SourceEntity> sources = new List<Proto.SourceEntity>();
+            public long total = 0;
         }
 
         protected override void preSetup()
@@ -36,6 +40,12 @@ namespace HKG.Module.Metatable
             {
                 return status_ as SourceStatus;
             }
+        }
+
+        public void SaveSources(SourceStatus _status)
+        {
+            status.sources = _status.sources;
+            status.total = _status.total;
         }
     }
 }

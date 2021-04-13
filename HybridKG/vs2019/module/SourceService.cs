@@ -22,6 +22,14 @@ namespace HKG.Module.Metatable
             getLogger().Trace("setup SourceService");
         }
 
+        protected override void postSetup()
+        {
+            Proto.ListRequest req = new Proto.ListRequest();
+            req._offset = Proto.Field.FromLong(0);
+            req._count = Proto.Field.FromLong(int.MaxValue);
+            PostList(req);
+        }
+
         public void PostImportYaml(Proto.ImportYamlRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
@@ -53,7 +61,10 @@ namespace HKG.Module.Metatable
                 options.Converters.Add(new FieldConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.SourceListResponse>(_reply, options);
                 SourceModel.SourceStatus status = Model.Status.New<SourceModel.SourceStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
-                model.Broadcast("/hkg/metatable/Source/List", rsp);
+                status.sources = new List<Proto.SourceEntity>(rsp._entity);
+                status.total = rsp._total.AsLong();
+                model.SaveSources(status);
+                model.Broadcast("/hkg/metatable/Source/List", status);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());

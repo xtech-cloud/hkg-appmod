@@ -8,5 +8,10 @@ namespace HKG.Module.Collector
         void Alert(string _message);
 
         void RefreshList(long _total, object _result);
+
+        void RefreshScrapeProgress(float _value);
+        void RefreshScrapeFinish();
+
+        void RefreshDocument(string _rawText);
     }
 }

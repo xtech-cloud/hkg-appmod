@@ -64,7 +64,7 @@ namespace HKG.Module.Metatable
                 foreach(var e in rsp._entity)
                 {
                     string labels = "";
-                    foreach (string label in e._label)
+                    foreach (string label in e._label.AsStringAry())
                         labels += string.Format("{0}, ", label);
                     if (!string.IsNullOrEmpty(labels))
                         labels = labels.Remove(labels.Length - 2, 2);

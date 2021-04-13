@@ -22,11 +22,15 @@ namespace HKG.Module.Collector
             getLogger().Trace("setup DocumentService");
         }
 
+        protected override void postSetup()
+        {
+        }
+
         public void PostScrape(Proto.DocumentScrapeRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["name"] = _request._name.AsAny();
-            //TODO 未实现的字段 string[] keyword
+            paramMap["keywork"] = _request._keyword.AsAny();
             paramMap["address"] = _request._address.AsAny();
             paramMap["attribute"] = _request._attribute.AsAny();
 
@@ -56,7 +60,10 @@ namespace HKG.Module.Collector
                 options.Converters.Add(new FieldConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.DocumentListResponse>(_reply, options);
                 DocumentModel.DocumentStatus status = Model.Status.New<DocumentModel.DocumentStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
-                model.Broadcast("/hkg/collector/Document/List", rsp);
+                status.documents = new List<Proto.DocumentEntity>(rsp._entity);
+                status.total = rsp._total.AsLong();
+                model.SaveDocuments(status);
+                model.Broadcast("/hkg/collector/Document/List", status);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());

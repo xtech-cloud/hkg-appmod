@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using XTC.oelMVCS;
 
@@ -24,6 +25,9 @@ namespace HKG.Module.Collector
 
             public void RefreshList(long _total, object _result)
             {
+                panel.btnScrapeAll.Enabled = true;
+                panel.btnScrapeNew.Enabled = true;
+
                 panel.btnList.Enabled = true;
                 panel.lvDocument.Clear();
                 var col = panel.lvDocument.Columns.Add("");
@@ -34,8 +38,26 @@ namespace HKG.Module.Collector
                 {
                     ListViewItem item = new ListViewItem();
                     item.SubItems[0].Text = key;
+                    item.SubItems[0].Name = result[key];
                     panel.lvDocument.Items.Add(item);
                 }
+            }
+
+            public void RefreshScrapeProgress(float _value)
+            {
+                panel.pbScrape.Value = (int)(_value*100);
+            }
+
+            public void RefreshScrapeFinish()
+            {
+                panel.pbScrape.Value = 100;
+                panel.btnScrapeAll.Enabled = true;
+                panel.btnScrapeNew.Enabled = true;
+            }
+
+            public void RefreshDocument(string _rawText)
+            {
+                panel.wbDocument.DocumentText = _rawText;
             }
         }
 
@@ -52,11 +74,12 @@ namespace HKG.Module.Collector
             this.Location = new System.Drawing.Point(10, 10);
             this.Name = "rootPanel";
             this.TabIndex = 0;
-
         }
 
-        private void btnScrape_Click(object sender, EventArgs e)
+        private void btnScrapeAll_Click(object sender, EventArgs e)
         {
+            this.btnScrapeAll.Enabled = false;
+            this.btnScrapeNew.Enabled = false;
             var bridge = crossFacade.getViewBridge() as ICrossViewBridge;
             bridge.OnScrapeFromMetatableSubmit();
         }
@@ -67,5 +90,25 @@ namespace HKG.Module.Collector
             var bridge = facade.getViewBridge() as IDocumentViewBridge;
             bridge.OnListSubmit(0, 0);
         }
+
+        private void btnScrapeNew_Click(object sender, EventArgs e)
+        {
+            this.btnScrapeAll.Enabled = false;
+            this.btnScrapeNew.Enabled = false;
+            MessageBox.Show("暂未实现的功能");
+            this.btnScrapeAll.Enabled = true;
+            this.btnScrapeNew.Enabled = true;
+        }
+
+        private void lvDocument_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.lvDocument.SelectedItems.Count == 0)
+                return;
+
+            string uuid = this.lvDocument.SelectedItems[0].Name;
+            var bridge = facade.getViewBridge() as IDocumentViewBridge;
+            bridge.OnDocumentSelected(uuid);
+        }
+
     }
 }

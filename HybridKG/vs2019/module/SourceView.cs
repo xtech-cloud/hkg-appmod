@@ -55,18 +55,19 @@ namespace HKG.Module.Metatable
     
         private void handleSourceList(Model.Status _status, object _data)
         {
-            var rsp = (Proto.SourceListResponse)_data;
-            if(rsp._status._code.AsInt() == 0)
+            SourceModel.SourceStatus replayStatus = (SourceModel.SourceStatus)_data;
+            if(replayStatus.getCode() == 0)
             {
+                SourceModel.SourceStatus status = _status as SourceModel.SourceStatus;
                 Dictionary<string, string> entity = new Dictionary<string, string>();
-                foreach (var e in rsp._entity)
+                foreach (var e in status.sources)
                 {
                     entity[e._name.AsString()] = e._address.AsString();
                 }
-                bridge.RefreshSourceList(rsp._total.AsLong(), entity);
+                bridge.RefreshSourceList(status.total, entity);
             }
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt(), rsp._status._message.AsString()));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", replayStatus.getCode(), replayStatus.getMessage()));
         }
     
     }

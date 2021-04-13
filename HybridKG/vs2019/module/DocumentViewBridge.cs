@@ -6,6 +6,8 @@ namespace HKG.Module.Collector
     {
         public DocumentView view{ get; set; }
         public DocumentService service{ get; set; }
+        public DocumentModel model { get; set; }
+
 
 
         public void OnScrapeSubmit(string _name, string[] _keyword, string _address, string _attribute)
@@ -28,8 +30,10 @@ namespace HKG.Module.Collector
 
             service.PostList(req);
         }
-        
 
-
+        public void OnDocumentSelected(string _uuid)
+        {
+            model.Broadcast("/hkg/collector/document/selected", _uuid);
+        }
     }
 }

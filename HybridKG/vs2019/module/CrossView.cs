@@ -19,6 +19,7 @@ namespace HKG.Module
             vb.view = this;
             vb.service = service;
             facade.setViewBridge(vb);
+
         }
 
         protected override void setup()

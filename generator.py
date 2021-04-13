@@ -288,7 +288,7 @@ template_app_Program_cs = r"""
 
 using System;
 using System.Windows.Forms;
-using HKG.Module.{{mod}};
+using {{org}}.Module.{{mod}};
 using XTC.oelMVCS;
 
 namespace app
@@ -630,17 +630,23 @@ namespace {{org}}.Module.{{mod}}
 """
 
 template_module_Json_Convert_cs = r"""
+
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Collections.Generic;
 using XTC.oelMVCS;
+
 namespace {{org}}.Module.{{mod}}
 {
+    /// <summary>
+    /// 用于将请求数据序列化为json
+    /// </summary>
     class AnyConverter : JsonConverter<Any>
     {
         public override Any Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return new Any();
+            throw new NotImplementedException();
         }
 
         public override void Write(Utf8JsonWriter writer, Any _value, JsonSerializerOptions options)
@@ -657,30 +663,90 @@ namespace {{org}}.Module.{{mod}}
                 writer.WriteNumberValue(_value.AsDouble());
             else if (_value.IsBool())
                 writer.WriteBooleanValue(_value.AsBool());
+            else if(_value.IsStringAry())
+            {
+                writer.WriteStartArray();
+                foreach(string v in _value.AsStringAry())
+                {
+                    writer.WriteStringValue(v);
+                }
+                writer.WriteEndArray();
+            }
+            else if (_value.IsIntAry())
+            {
+                writer.WriteStartArray();
+                foreach (int v in _value.AsIntAry())
+                {
+                    writer.WriteNumberValue(v);
+                }
+                writer.WriteEndArray();
+            }
+            else if (_value.IsLongAry())
+            {
+                writer.WriteStartArray();
+                foreach (long v in _value.AsLongAry())
+                {
+                    writer.WriteNumberValue(v);
+                }
+                writer.WriteEndArray();
+            }
+            else if (_value.IsFloatAry())
+            {
+                writer.WriteStartArray();
+                foreach (float v in _value.AsFloatAry())
+                {
+                    writer.WriteNumberValue(v);
+                }
+                writer.WriteEndArray();
+            }
+            else if (_value.IsDoubleAry())
+            {
+                writer.WriteStartArray();
+                foreach (double v in _value.AsDoubleAry())
+                {
+                    writer.WriteNumberValue(v);
+                }
+                writer.WriteEndArray();
+            }
+            else if (_value.IsBoolAry())
+            {
+                writer.WriteStartArray();
+                foreach (bool v in _value.AsBoolAry())
+                {
+                    writer.WriteBooleanValue(v);
+                }
+                writer.WriteEndArray();
+            }
         }
     }//class
 
+    /// <summary>
+    /// 用于将json反序列化为回复数据
+    /// </summary>
     class FieldConverter : JsonConverter<Proto.Field>
     {
         public override Proto.Field Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
+            if (reader.TokenType == JsonTokenType.StartArray)
+            {
+                List<string> ary = new List<string>();
+                while (reader.Read())
+                {
+                   if(reader.TokenType == JsonTokenType.EndArray)
+                    {
+                        break;
+                    }
+                    string s = reader.GetString();
+                    ary.Add(s);
+                }
+                return Proto.Field.FromStringAry(ary.ToArray());
+            }
             return Proto.Field.FromString(reader.GetString());
         }
 
         public override void Write(Utf8JsonWriter writer, Proto.Field _value, JsonSerializerOptions options)
         {
-            if(_value.IsString())
-                writer.WriteStringValue(_value.AsString());
-            else if (_value.IsInt())
-                writer.WriteNumberValue(_value.AsInt());
-            else if (_value.IsLong())
-                writer.WriteNumberValue(_value.AsLong());
-            else if (_value.IsFloat())
-                writer.WriteNumberValue(_value.AsFloat());
-            else if (_value.IsDouble())
-                writer.WriteNumberValue(_value.AsDouble());
-            else if (_value.IsBool())
-                writer.WriteBooleanValue(_value.AsBool());
+            throw new NotImplementedException();
         }
     }//class
 }//namespace
@@ -878,11 +944,12 @@ template_module_Protocol_cs = r"""
 using System;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Collections.Generic;
 using XTC.oelMVCS;
 
 namespace {{org}}.Module.{{mod}}.Proto
 {
-    public class Field
+public class Field
     {
         public enum Tag
         {
@@ -892,7 +959,13 @@ namespace {{org}}.Module.{{mod}}.Proto
             LongValue = 3,
             FloatValue = 4,
             DoubleValue = 5,
-            BoolValue = 6
+            BoolValue = 6,
+            StringAryValue = 11,
+            IntAryValue = 12,
+            LongAryValue = 13,
+            FloatAryValue = 14,
+            DoubleAryValue = 15,
+            BoolAryValue = 16
         }
 
         private string value_ = "";
@@ -922,7 +995,7 @@ namespace {{org}}.Module.{{mod}}.Proto
         {
             Field any = new Field();
             any.tag_ = Tag.DoubleValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
 
@@ -930,7 +1003,7 @@ namespace {{org}}.Module.{{mod}}.Proto
         {
             Field any = new Field();
             any.tag_ = Tag.BoolValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
 
@@ -938,7 +1011,7 @@ namespace {{org}}.Module.{{mod}}.Proto
         {
             Field any = new Field();
             any.tag_ = Tag.IntValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
 
@@ -946,7 +1019,108 @@ namespace {{org}}.Module.{{mod}}.Proto
         {
             Field any = new Field();
             any.tag_ = Tag.LongValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
+            return any;
+        }
+        public static Field FromStringAry(string[] _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.StringAryValue;
+            string ary = "";
+            foreach(string v in _value)
+            {
+                ary += string.Format("{0},", v);
+            }
+            if(!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("[{0}]", ary);
+            return any;
+        }
+
+        public static Field FromFloatAry(float[] _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.FloatAryValue;
+            string ary = "";
+            foreach (float v in _value)
+            {
+                ary += string.Format("{0},", v);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("[{0}]", ary);
+            return any;
+        }
+
+        public static Field FromDoubleAry(double[] _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.DoubleAryValue;
+            string ary = "";
+            foreach (double v in _value)
+            {
+                ary += string.Format("{0},", v);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("[{0}]", ary);
+            return any;
+        }
+
+        public static Field FromBoolAry(bool[] _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.BoolAryValue;
+            string ary = "";
+            foreach (bool v in _value)
+            {
+                ary += string.Format("{0},", v);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("[{0}]", ary);
+            return any;
+        }
+
+        public static Field FromIntAry(int[] _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.IntAryValue;
+            string ary = "";
+            foreach (int v in _value)
+            {
+                ary += string.Format("{0},", v);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("[{0}]", ary);
+            return any;
+        }
+
+        public static Field FromLongAry(long[] _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.LongAryValue;
+            string ary = "";
+            foreach (long v in _value)
+            {
+                ary += string.Format("{0},", v);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("[{0}]", ary);
             return any;
         }
 
@@ -985,11 +1159,42 @@ namespace {{org}}.Module.{{mod}}.Proto
             return tag_ == Tag.BoolValue;
         }
 
+        public bool IsStringAry()
+        {
+            return tag_ == Tag.StringAryValue;
+        }
+
+        public bool IsIntAry()
+        {
+            return tag_ == Tag.IntAryValue;
+        }
+
+        public bool IsLongAry()
+        {
+            return tag_ == Tag.LongAryValue;
+        }
+
+        public bool IsFloatAry()
+        {
+            return tag_ == Tag.FloatAryValue;
+        }
+
+        public bool IsDoubleAry()
+        {
+            return tag_ == Tag.DoubleAryValue;
+        }
+
+        public bool IsBoolAry()
+        {
+            return tag_ == Tag.BoolAryValue;
+        }
+
+
+
         public string AsString()
         {
             return value_;
         }
-
 
         public int AsInt()
         {
@@ -1026,6 +1231,117 @@ namespace {{org}}.Module.{{mod}}.Proto
             return value;
         }
 
+        public string[] AsStringAry()
+        {
+            List<string> v = new List<string>();
+            if (value_.StartsWith("[") && value_.EndsWith("]"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    string value = e.Trim();
+                    v.Add(value);
+                }
+            }
+            return v.ToArray();
+        }
+
+        public int[] AsIntAry()
+        {
+            List<int> v = new List<int>();
+            if (value_.StartsWith("[") && value_.EndsWith("]"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    int value;
+                    if(int.TryParse(e.Trim(), out value))
+                        v.Add(value);
+                    else
+                        v.Add(0);
+                }
+            }
+            return v.ToArray();
+        }
+
+        public long[] AsLongAry()
+        {
+            List<long> v = new List<long>();
+            if (value_.StartsWith("[") && value_.EndsWith("]"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    long value;
+                    if (long.TryParse(e.Trim(), out value))
+                        v.Add(value);
+                    else
+                        v.Add(0);
+                }
+            }
+            return v.ToArray();
+        }
+
+        public float[] AsFloatAry()
+        {
+            List<float> v = new List<float>();
+            if (value_.StartsWith("[") && value_.EndsWith("]"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    float value;
+                    if (float.TryParse(e.Trim(), out value))
+                        v.Add(value);
+                    else
+                        v.Add(0);
+                }
+            }
+            return v.ToArray();
+        }
+
+        public double[] AsDoubleAry()
+        {
+            List<double> v = new List<double>();
+            if (value_.StartsWith("[") && value_.EndsWith("]"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    double value;
+                    if (double.TryParse(e.Trim(), out value))
+                        v.Add(value);
+                    else
+                        v.Add(0);
+                }
+            }
+            return v.ToArray();
+        }
+
+        public bool[] AsBoolAry()
+        {
+            List<bool> v = new List<bool>();
+            if (value_.StartsWith("[") && value_.EndsWith("]"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    bool value;
+                    if (bool.TryParse(e.Trim(), out value))
+                        v.Add(value);
+                    else
+                        v.Add(false);
+                }
+            }
+            return v.ToArray();
+        }
+
         public Any AsAny()
         {
             if(IsString())
@@ -1040,9 +1356,20 @@ namespace {{org}}.Module.{{mod}}.Proto
                 return Any.FromDouble(AsDouble());
             if(IsBool())
                 return Any.FromBool(AsBool());
+            if (IsStringAry())
+                return Any.FromStringAry(AsStringAry());
+            if (IsIntAry())
+                return Any.FromIntAry(AsIntAry());
+            if (IsLongAry())
+                return Any.FromLongAry(AsLongAry());
+            if (IsFloatAry())
+                return Any.FromFloatAry(AsFloatAry());
+            if (IsDoubleAry())
+                return Any.FromDoubleAry(AsDoubleAry());
+            if (IsBoolAry())
+                return Any.FromBoolAry(AsBoolAry());
             return new Any();
         }
-
     }//class
 {{proto}}
 }
@@ -1699,8 +2026,10 @@ for service in services.keys():
                     assign_block = assign_block + str.format(
                         "            req._{} = Proto.Field.From{}(_{});\n", field_name, field_type.capitalize(), field_name
                         )
-                else:
-                    assign_block = assign_block + '            //TODO 未实现的字段赋值 {} {}\n'.format(field_type, field_name)
+                elif field_type.endswith('[]'):
+                    assign_block = assign_block + str.format(
+                            "            req._{} = Proto.Field.From{}Ary(_{});\n", field_name, field_type[:-2].capitalize(), field_name
+                        )
             # 移除末尾的 ', '
             if len(args_block) > 0:
                 args_block = args_block[0:-2]
@@ -1765,10 +2094,10 @@ for service in services.keys():
                         field_name,
                         field_name,
                         )
-                else:
+                elif field_type.endswith('[]'):
                     assign_block = assign_block + str.format(
-                        '            //TODO 未实现的字段 {} {}\n',
-                        field_type,
+                        '            paramMap["{}"] = _request._{}.AsAny();\n',
+                        field_name,
                         field_name,
                         )
             rpc_block = rpc_block.replace("{{assign}}", assign_block)
@@ -1803,20 +2132,30 @@ with open("./vs2019/module/Protocol.cs", "w", encoding="utf-8") as wf:
             if field_type in enums:
                 field_type = "enum"
             # 转换类型
-            if field_type in type_dict.keys():
-                #field_type = type_dict[field_type]
-                field_type = 'Field'
-            field_block = field_block + str.format(
-                    "            [JsonPropertyName(\"{}\")]\n            public {} _{} {{get;set;}}\n", field_name, field_type, field_name
-                    )
+            isArray = False
             if field_type.endswith('[]'):
                 field_type = field_type[:-2]
+                isArray = True
+                if field_type in type_dict.keys():
+                    field_type = 'Field'
+
+            else:
+                if field_type in type_dict.keys():
+                    field_type = 'Field'
+
+            if isArray and field_type != 'Field':
                 assign_block = assign_block + str.format(
                         "                _{} = new {}[0];\n", field_name, field_type
+                        )
+                field_block = field_block + str.format(
+                        "            [JsonPropertyName(\"{}\")]\n            public {}[] _{} {{get;set;}}\n", field_name, field_type, field_name
                         )
             else:
                 assign_block = assign_block + str.format(
                         "                _{} = new {}();\n", field_name, field_type
+                        )
+                field_block = field_block + str.format(
+                        "            [JsonPropertyName(\"{}\")]\n            public {} _{} {{get;set;}}\n", field_name, field_type, field_name
                         )
         message_block = template_class.replace("{{message}}", message_name)
         message_block = message_block.replace("{{field}}", field_block)

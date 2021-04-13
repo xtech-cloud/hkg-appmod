@@ -11,8 +11,12 @@ namespace HKG.Module
     {
         public const string NAME = "CrossService";
 
+        private Collector.DocumentModel modelDocument = null;
+
+
         protected override void preSetup()
         {
+            modelDocument = findModel(Collector.DocumentModel.NAME) as Collector.DocumentModel;
         }
 
         protected override void setup()
@@ -48,31 +52,47 @@ namespace HKG.Module
                         return;
                     }
 
+                    List<Dictionary<string, Any>> docParamMaps = new List<Dictionary<string, Any>>();
                     foreach (var eVocabulary in rspVocabulary._entity)
                     {
                         foreach (var eSource in rspSource._entity)
                         {
                             Dictionary<string, Any> docParamMap = new Dictionary<string, Any>();
                             docParamMap["name"] = Any.FromString(eVocabulary._name.AsString());
-                            //TODO 未实现的字段 string[] keyword
+                            docParamMap["keyword"] = Any.FromStringAry(eVocabulary._label.AsStringAry());
                             docParamMap["address"] = Any.FromString(eSource._expression.AsString().Replace("{?}", eVocabulary._name.AsString()));
                             docParamMap["attribute"] = Any.FromString(eSource._attribute.AsString());
-
-                            post(string.Format("{0}/hkg/collector/Document/Scrape", getConfig()["domain"].AsString()), docParamMap, (_reply) =>
-                            {
-                                var rspScrape = JsonSerializer.Deserialize<Collector.Proto.BlankResponse>(_reply, options);
-                                if (0 != rspScrape._status._code.AsInt())
-                                {
-                                    getLogger().Error(rspScrape._status._message.AsString());
-                                    return;
-                                }
-                            }, (_err) =>
-                            {
-                                getLogger().Error(_err.getMessage());
-                            }, null);
+                            docParamMaps.Add(docParamMap);
                         }
                     }
 
+                    int index = 0;
+                    int total = docParamMaps.Count;
+                    foreach(var docParamMap in docParamMaps)
+                    {
+                        post(string.Format("{0}/hkg/collector/Document/Scrape", getConfig()["domain"].AsString()), docParamMap, (_reply) =>
+                        {
+                            index += 1;
+                            if(index == total)
+                                modelDocument.Broadcast("/hkg/collector/document/scrape/finish", null);
+                            else
+                                modelDocument.Broadcast("/hkg/collector/document/scrape/progress", ((float)index) / ((float)total));
+                            var rspScrape = JsonSerializer.Deserialize<Collector.Proto.BlankResponse>(_reply, options);
+                            if (0 != rspScrape._status._code.AsInt())
+                            {
+                                getLogger().Error(rspScrape._status._message.AsString());
+                                return;
+                            }
+                        }, (_err) =>
+                        {
+                            index += 1;
+                            if (index == total)
+                                modelDocument.Broadcast("/hkg/collector/document/scrape/finish", null);
+                            else
+                                modelDocument.Broadcast("/hkg/collector/document/scrape/progress", ((float)index) / ((float)total));
+                            getLogger().Error(_err.getMessage());
+                        }, null);
+                    }
                 }, (_err) =>
                 {
                     getLogger().Error(_err.getMessage());

@@ -1,5 +1,5 @@
 
-using System;
+using System.Collections.Generic;
 using XTC.oelMVCS;
 
 namespace HKG.Module.Collector
@@ -11,6 +11,9 @@ namespace HKG.Module.Collector
         public class DocumentStatus : Model.Status
         {
             public const string NAME = "Collector.DocumentStatus";
+
+            public List<Proto.DocumentEntity> documents = new List<Proto.DocumentEntity>();
+            public long total = 0;
         }
 
         protected override void preSetup()
@@ -36,6 +39,11 @@ namespace HKG.Module.Collector
             {
                 return status_ as DocumentStatus;
             }
+        }
+
+        public void SaveDocuments(DocumentStatus _status)
+        {
+            status.documents = _status.documents;
         }
     }
 }
