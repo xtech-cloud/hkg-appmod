@@ -31,6 +31,15 @@ namespace HKG.Module
             facadeSource.setUiBridge(uiSourceBridge);
 
             // 注册UI装饰
+            Metatable.SchemaFacade facadeSchema = new Metatable.SchemaFacade();
+            framework_.getStaticPipe().RegisterFacade(Metatable.SchemaFacade.NAME, facadeSchema);
+            Metatable.SchemaPanel panelSchema = new Metatable.SchemaPanel();
+            panelSchema.facade = facadeSchema;
+            Metatable.SchemaPanel.SchemaUiBridge uiSchemaBridge = new Metatable.SchemaPanel.SchemaUiBridge();
+            uiSchemaBridge.panel = panelSchema;
+            facadeSchema.setUiBridge(uiSchemaBridge);
+
+            // 注册UI装饰
             Metatable.VocabularyFacade facadeVocabulary = new Metatable.VocabularyFacade();
             framework_.getStaticPipe().RegisterFacade(Metatable.VocabularyFacade.NAME, facadeVocabulary);
             Metatable.VocabularyPanel panelVocabulary = new Metatable.VocabularyPanel();
@@ -56,7 +65,10 @@ namespace HKG.Module
 
             // 注销UI装饰
             framework_.getStaticPipe().CancelFacade(Metatable.SourceFacade.NAME);
-        
+
+            // 注销UI装饰
+            framework_.getStaticPipe().CancelFacade(Metatable.SchemaFacade.NAME);
+
             // 注销UI装饰
             framework_.getStaticPipe().CancelFacade(Metatable.VocabularyFacade.NAME);
 

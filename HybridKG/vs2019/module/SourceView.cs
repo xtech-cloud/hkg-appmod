@@ -59,10 +59,14 @@ namespace HKG.Module.Metatable
             if(replayStatus.getCode() == 0)
             {
                 SourceModel.SourceStatus status = _status as SourceModel.SourceStatus;
-                Dictionary<string, string> entity = new Dictionary<string, string>();
+                Dictionary<string, Dictionary<string, string>> entity = new Dictionary<string, Dictionary<string, string>>();
                 foreach (var e in status.sources)
                 {
-                    entity[e._name.AsString()] = e._address.AsString();
+                    string path = e._name.AsString();
+                    entity[path] = new Dictionary<string, string>();
+                    entity[path]["address"] = e._address.AsString();
+                    entity[path]["attribute"] = e._attribute.AsString();
+                    entity[path]["expression"] = e._expression.AsString();
                 }
                 bridge.RefreshSourceList(status.total, entity);
             }

@@ -11,5 +11,10 @@ namespace HKG.Module
         {
             service.ScrapeFromMetatable();
         }
+
+        public void OnTidyFromMetatableSubmit()
+        {
+            service.TidyFromMetatable();
+        }
     }
 }

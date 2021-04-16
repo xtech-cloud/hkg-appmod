@@ -1,17 +1,17 @@
 
 using System;
 using System.IO;
-using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using XTC.oelMVCS;
 
 namespace HKG.Module.Metatable
 {
-    public partial class VocabularyPanel : UserControl
+    public partial class SchemaPanel : UserControl
     {
-        public class VocabularyUiBridge : IVocabularyUiBridge
+        public class SchemaUiBridge : ISchemaUiBridge
         {
-            public VocabularyPanel panel { get; set; }
+            public SchemaPanel panel { get; set; }
 
             public object getRootPanel()
             {
@@ -23,14 +23,14 @@ namespace HKG.Module.Metatable
                 MessageBox.Show(_message);
             }
 
-            public void RefreshVocabularyList(long _total, object _entity)
+            public void RefreshSchemaList(long _total, object _entity)
             {
                 panel.btnRefresh.Enabled = true;
-                panel.vocabularies = (Dictionary<string, List<string>>)_entity;
-                foreach (string path in panel.vocabularies.Keys)
+                panel.rules = (Dictionary<string, Dictionary<string,string>>)_entity;
+                foreach(string path in panel.rules.Keys)
                 {
                     string[] sections = path.Split("/");
-                    var nodes = panel.tvVocabulary.Nodes;
+                    var nodes = panel.tvSchema.Nodes;
                     foreach (string section in sections)
                     {
                         if (string.IsNullOrEmpty(section))
@@ -47,15 +47,14 @@ namespace HKG.Module.Metatable
                         nodes = found[0].Nodes;
                     }
                 }
-                //panel.tvVocabulary.ExpandAll();
+                panel.tvSchema.ExpandAll();
             }
         }
 
-        public VocabularyFacade facade { get; set; }
-        private Dictionary<string, List<string>> vocabularies = new Dictionary<string, List<string>>();
+        public SchemaFacade facade { get; set; }
+        private Dictionary<string, Dictionary<string, string>> rules = new Dictionary<string, Dictionary<string, string>>();
 
-
-        public VocabularyPanel()
+        public SchemaPanel()
         {
             InitializeComponent();
 
@@ -68,9 +67,7 @@ namespace HKG.Module.Metatable
 
             this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             this.btnImportYaml.Click += new System.EventHandler(this.btnImportYaml_Click);
-
         }
-
         private void btnImportYaml_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -83,34 +80,30 @@ namespace HKG.Module.Metatable
             if (string.IsNullOrEmpty(file))
                 return;
             string yaml = File.ReadAllText(file);
-            var bridge = facade.getViewBridge() as IVocabularyViewBridge;
+            var bridge = facade.getViewBridge() as ISchemaViewBridge;
             bridge.OnImportYamlSubmit(yaml);
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-            var bridge = facade.getViewBridge() as IVocabularyViewBridge;
+            var bridge = facade.getViewBridge() as ISchemaViewBridge;
             long offset = 0;
             long count = int.MaxValue;
-            btnRefresh.Enabled = false;
             bridge.OnListSubmit(offset, count);
         }
 
-        private void tvVocabulary_AfterSelect(object sender, TreeViewEventArgs e)
+        private void tvSchema_AfterSelect(object sender, TreeViewEventArgs e)
         {
             TreeNode node = e.Node;
             if (node.Nodes.Count > 0)
                 return;
             string fullpath = node.FullPath;
-            List<string> labels;
-            if (!this.vocabularies.TryGetValue(fullpath, out labels))
+            Dictionary<string, string> rule;
+            if (!this.rules.TryGetValue(fullpath, out rule))
                 return;
-
-            lbLabel.Items.Clear();
-            foreach (string label in labels)
-            {
-                lbLabel.Items.Add(label);
-            }
+            tbField.Text = rule["field"];
+            tbText.Text = rule["text"];
+            tbElement.Text = rule["element"];
         }
     }
 }

@@ -7,20 +7,21 @@ using XTC.oelMVCS;
 
 namespace HKG.Module.Metatable
 {
-    public class VocabularyService: Service
+    public class SchemaService: Service
     {
-        public const string NAME = "Metatable.VocabularyService";
-        private VocabularyModel model = null;
+        public const string NAME = "Metatable.SchemaService";
+        private SchemaModel model = null;
 
         protected override void preSetup()
         {
-            model = findModel(VocabularyModel.NAME) as VocabularyModel;
+            model = findModel(SchemaModel.NAME) as SchemaModel;
         }
 
         protected override void setup()
         {
-            getLogger().Trace("setup VocabularyService");
+            getLogger().Trace("setup SchemaService");
         }
+
         protected override void postSetup()
         {
             Proto.ListRequest req = new Proto.ListRequest();
@@ -34,13 +35,13 @@ namespace HKG.Module.Metatable
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["content"] = _request._content.AsAny();
 
-            post(string.Format("{0}/hkg/metatable/Vocabulary/ImportYaml", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/hkg/metatable/Schema/ImportYaml", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new FieldConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
-                VocabularyModel.VocabularyStatus status = Model.Status.New<VocabularyModel.VocabularyStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
-                model.Broadcast("/hkg/metatable/Vocabulary/ImportYaml", rsp);
+                SchemaModel.SchemaStatus status = Model.Status.New<SchemaModel.SchemaStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
+                model.Broadcast("/hkg/metatable/Schema/ImportYaml", rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());
@@ -54,13 +55,16 @@ namespace HKG.Module.Metatable
             paramMap["offset"] = _request._offset.AsAny();
             paramMap["count"] = _request._count.AsAny();
 
-            post(string.Format("{0}/hkg/metatable/Vocabulary/List", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/hkg/metatable/Schema/List", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new FieldConverter());
-                var rsp = JsonSerializer.Deserialize<Proto.VocabularyListResponse>(_reply, options);
-                VocabularyModel.VocabularyStatus status = Model.Status.New<VocabularyModel.VocabularyStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
-                model.Broadcast("/hkg/metatable/Vocabulary/List", rsp);
+                var rsp = JsonSerializer.Deserialize<Proto.SchemaListResponse>(_reply, options);
+                SchemaModel.SchemaStatus status = Model.Status.New<SchemaModel.SchemaStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
+                status.schemas = new List<Proto.SchemaEntity>(rsp._entity);
+                status.total = rsp._total.AsLong();
+                model.SaveSchemas(status);
+                model.Broadcast("/hkg/metatable/Schema/List", status);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());
@@ -68,18 +72,18 @@ namespace HKG.Module.Metatable
         }
         
 
-        public void PostFind(Proto.FindRequest _request)
+        public void PostDelete(Proto.DeleteRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["name"] = _request._name.AsAny();
+            paramMap["uuid"] = _request._uuid.AsAny();
 
-            post(string.Format("{0}/hkg/metatable/Vocabulary/Find", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/hkg/metatable/Schema/Delete", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new FieldConverter());
-                var rsp = JsonSerializer.Deserialize<Proto.VocabularyFindResponse>(_reply, options);
-                VocabularyModel.VocabularyStatus status = Model.Status.New<VocabularyModel.VocabularyStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
-                model.Broadcast("/hkg/metatable/Vocabulary/Find", rsp);
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                SchemaModel.SchemaStatus status = Model.Status.New<SchemaModel.SchemaStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
+                model.Broadcast("/hkg/metatable/Schema/Delete", rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());

@@ -35,7 +35,9 @@ namespace HKG.Module.Collector
             this.lvDocument = new System.Windows.Forms.ListView();
             this.btnList = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnScrapeNew = new System.Windows.Forms.Button();
+            this.btnTidyEmpty = new System.Windows.Forms.Button();
+            this.btnTidyAll = new System.Windows.Forms.Button();
+            this.btnScrapeEmpty = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageWeb = new System.Windows.Forms.TabPage();
             this.wbDocument = new System.Windows.Forms.WebBrowser();
@@ -48,11 +50,11 @@ namespace HKG.Module.Collector
             // btnScrapeAll
             // 
             this.btnScrapeAll.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btnScrapeAll.Location = new System.Drawing.Point(6, 22);
+            this.btnScrapeAll.Location = new System.Drawing.Point(7, 22);
             this.btnScrapeAll.Name = "btnScrapeAll";
-            this.btnScrapeAll.Size = new System.Drawing.Size(195, 23);
+            this.btnScrapeAll.Size = new System.Drawing.Size(85, 23);
             this.btnScrapeAll.TabIndex = 0;
-            this.btnScrapeAll.Text = "全部采集";
+            this.btnScrapeAll.Text = "全量采集";
             this.btnScrapeAll.UseVisualStyleBackColor = true;
             this.btnScrapeAll.Click += new System.EventHandler(this.btnScrapeAll_Click);
             // 
@@ -91,9 +93,11 @@ namespace HKG.Module.Collector
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox1.Controls.Add(this.btnTidyEmpty);
+            this.groupBox1.Controls.Add(this.btnTidyAll);
             this.groupBox1.Controls.Add(this.btnList);
             this.groupBox1.Controls.Add(this.lvDocument);
-            this.groupBox1.Controls.Add(this.btnScrapeNew);
+            this.groupBox1.Controls.Add(this.btnScrapeEmpty);
             this.groupBox1.Controls.Add(this.btnScrapeAll);
             this.groupBox1.Controls.Add(this.pbScrape);
             this.groupBox1.Location = new System.Drawing.Point(13, 10);
@@ -103,16 +107,36 @@ namespace HKG.Module.Collector
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "词汇表";
             // 
-            // btnScrapeNew
+            // btnTidyEmpty
             // 
-            this.btnScrapeNew.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btnScrapeNew.Location = new System.Drawing.Point(7, 52);
-            this.btnScrapeNew.Name = "btnScrapeNew";
-            this.btnScrapeNew.Size = new System.Drawing.Size(194, 23);
-            this.btnScrapeNew.TabIndex = 2;
-            this.btnScrapeNew.Text = "增量采集";
-            this.btnScrapeNew.UseVisualStyleBackColor = true;
-            this.btnScrapeNew.Click += new System.EventHandler(this.btnScrapeNew_Click);
+            this.btnTidyEmpty.Location = new System.Drawing.Point(116, 51);
+            this.btnTidyEmpty.Name = "btnTidyEmpty";
+            this.btnTidyEmpty.Size = new System.Drawing.Size(86, 23);
+            this.btnTidyEmpty.TabIndex = 5;
+            this.btnTidyEmpty.Text = "增量结构化";
+            this.btnTidyEmpty.UseVisualStyleBackColor = true;
+            this.btnTidyEmpty.Click += new System.EventHandler(this.btnTidyEmpty_Click);
+            // 
+            // btnTidyAll
+            // 
+            this.btnTidyAll.Location = new System.Drawing.Point(116, 22);
+            this.btnTidyAll.Name = "btnTidyAll";
+            this.btnTidyAll.Size = new System.Drawing.Size(85, 23);
+            this.btnTidyAll.TabIndex = 4;
+            this.btnTidyAll.Text = "全量结构化";
+            this.btnTidyAll.UseVisualStyleBackColor = true;
+            this.btnTidyAll.Click += new System.EventHandler(this.btnTidyAll_Click);
+            // 
+            // btnScrapeEmpty
+            // 
+            this.btnScrapeEmpty.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnScrapeEmpty.Location = new System.Drawing.Point(7, 51);
+            this.btnScrapeEmpty.Name = "btnScrapeEmpty";
+            this.btnScrapeEmpty.Size = new System.Drawing.Size(85, 23);
+            this.btnScrapeEmpty.TabIndex = 2;
+            this.btnScrapeEmpty.Text = "增量采集";
+            this.btnScrapeEmpty.UseVisualStyleBackColor = true;
+            this.btnScrapeEmpty.Click += new System.EventHandler(this.btnScrapeEmpty_Click);
             // 
             // tabControl1
             // 
@@ -153,9 +177,9 @@ namespace HKG.Module.Collector
             this.tabPageText.Location = new System.Drawing.Point(4, 26);
             this.tabPageText.Name = "tabPageText";
             this.tabPageText.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageText.Size = new System.Drawing.Size(729, 345);
+            this.tabPageText.Size = new System.Drawing.Size(476, 572);
             this.tabPageText.TabIndex = 1;
-            this.tabPageText.Text = "纯文本格式";
+            this.tabPageText.Text = "结构化文本格式";
             this.tabPageText.UseVisualStyleBackColor = true;
             // 
             // DocumentPanel
@@ -184,7 +208,9 @@ namespace HKG.Module.Collector
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPageWeb;
         private System.Windows.Forms.TabPage tabPageText;
-        private System.Windows.Forms.Button btnScrapeNew;
+        private System.Windows.Forms.Button btnScrapeEmpty;
         private System.Windows.Forms.WebBrowser wbDocument;
+        private System.Windows.Forms.Button btnTidyEmpty;
+        private System.Windows.Forms.Button btnTidyAll;
     }
 }

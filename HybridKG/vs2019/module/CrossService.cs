@@ -55,14 +55,17 @@ namespace HKG.Module
                     List<Dictionary<string, Any>> docParamMaps = new List<Dictionary<string, Any>>();
                     foreach (var eVocabulary in rspVocabulary._entity)
                     {
-                        foreach (var eSource in rspSource._entity)
-                        {
-                            Dictionary<string, Any> docParamMap = new Dictionary<string, Any>();
-                            docParamMap["name"] = Any.FromString(eVocabulary._name.AsString());
-                            docParamMap["keyword"] = Any.FromStringAry(eVocabulary._label.AsStringAry());
-                            docParamMap["address"] = Any.FromString(eSource._expression.AsString().Replace("{?}", eVocabulary._name.AsString()));
-                            docParamMap["attribute"] = Any.FromString(eSource._attribute.AsString());
-                            docParamMaps.Add(docParamMap);
+                        foreach (var v in eVocabulary._value.AsStringAry())
+                        { 
+                            foreach (var eSource in rspSource._entity)
+                            {
+                                Dictionary<string, Any> docParamMap = new Dictionary<string, Any>();
+                                docParamMap["name"] = Any.FromString(v);
+                                docParamMap["keyword"] = Any.FromStringAry(eVocabulary._label.AsStringAry());
+                                docParamMap["address"] = Any.FromString(eSource._expression.AsString().Replace("{?}", eVocabulary._name.AsString()));
+                                docParamMap["attribute"] = Any.FromString(eSource._attribute.AsString());
+                                docParamMaps.Add(docParamMap);
+                            }
                         }
                     }
 
@@ -90,6 +93,90 @@ namespace HKG.Module
                                 modelDocument.Broadcast("/hkg/collector/document/scrape/finish", null);
                             else
                                 modelDocument.Broadcast("/hkg/collector/document/scrape/progress", ((float)index) / ((float)total));
+                            getLogger().Error(_err.getMessage());
+                        }, null);
+                    }
+                }, (_err) =>
+                {
+                    getLogger().Error(_err.getMessage());
+                }, null);
+
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+        public void TidyFromMetatable()
+        {
+            Dictionary<string, Any> listParamMap = new Dictionary<string, Any>();
+            listParamMap["offset"] = Any.FromLong(0);
+            listParamMap["count"] = Any.FromLong(long.MaxValue);
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new Metatable.FieldConverter());
+
+            post(string.Format("{0}/hkg/collector/Document/List", getConfig()["domain"].AsString()), listParamMap, (_reply) =>
+            {
+                var rspDocument = JsonSerializer.Deserialize<Collector.Proto.DocumentListResponse>(_reply, options);
+                if (0 != rspDocument._status._code.AsInt())
+                {
+                    getLogger().Error(rspDocument._status._message.AsString());
+                    return;
+                }
+
+                foreach (var eDocument in rspDocument._entity)
+                {
+                    Dictionary<string, Any> findParamMap = new Dictionary<string, Any>();
+                    listParamMap["count"] = Any.FromLong(eDocument.);
+                    var options = new JsonSerializerOptions();
+                    options.Converters.Add(new Metatable.FieldConverter());
+                }
+
+                post(string.Format("{0}/hkg/metatable/Schema/Find", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+                {
+                    var rspSchema = JsonSerializer.Deserialize<Metatable.Proto.SchemaListResponse>(_reply, options);
+                    if (0 != rspSchema._status._code.AsInt())
+                    {
+                        getLogger().Error(rspSchema._status._message.AsString());
+                        return;
+                    }
+
+                    List<Dictionary<string, Any>> docParamMaps = new List<Dictionary<string, Any>>();
+                    foreach (var eDocument in rspDocument._entity)
+                    {
+                            foreach (var eShema in rspSchema._entity)
+                            {
+                                Dictionary<string, Any> docParamMap = new Dictionary<string, Any>();
+                                docParamMap["uuid"] = Any.FromString(eDocument._uuid.AsString());
+                                docParamMap["rule"] = Any.FromStringAry(eShema._bu.AsStringAry());
+                                docParamMaps.Add(docParamMap);
+                            }
+                    }
+
+                    int index = 0;
+                    int total = docParamMaps.Count;
+                    foreach (var docParamMap in docParamMaps)
+                    {
+                        post(string.Format("{0}/hkg/collector/Document/Tidy", getConfig()["domain"].AsString()), docParamMap, (_reply) =>
+                        {
+                            index += 1;
+                            if (index == total)
+                                modelDocument.Broadcast("/hkg/collector/document/tidy/finish", null);
+                            else
+                                modelDocument.Broadcast("/hkg/collector/document/tidy/progress", ((float)index) / ((float)total));
+                            var rspScrape = JsonSerializer.Deserialize<Collector.Proto.BlankResponse>(_reply, options);
+                            if (0 != rspScrape._status._code.AsInt())
+                            {
+                                getLogger().Error(rspScrape._status._message.AsString());
+                                return;
+                            }
+                        }, (_err) =>
+                        {
+                            index += 1;
+                            if (index == total)
+                                modelDocument.Broadcast("/hkg/collector/document/tidy/finish", null);
+                            else
+                                modelDocument.Broadcast("/hkg/collector/document/tidy/progress", ((float)index) / ((float)total));
                             getLogger().Error(_err.getMessage());
                         }, null);
                     }

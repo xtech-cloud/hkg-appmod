@@ -53,7 +53,7 @@ public class Field
         {
             Field any = new Field();
             any.tag_ = Tag.DoubleValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
 
@@ -61,7 +61,7 @@ public class Field
         {
             Field any = new Field();
             any.tag_ = Tag.BoolValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
 
@@ -69,7 +69,7 @@ public class Field
         {
             Field any = new Field();
             any.tag_ = Tag.IntValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
 
@@ -77,7 +77,7 @@ public class Field
         {
             Field any = new Field();
             any.tag_ = Tag.LongValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
         public static Field FromStringAry(string[] _value)
@@ -430,6 +430,75 @@ public class Field
         }
     }//class
 
+        public class RuleEntity
+        {
+            public RuleEntity()
+            {
+                _field = new Field();
+                _text = new Field();
+                _element = new Field();
+
+            }
+            [JsonPropertyName("field")]
+            public Field _field {get;set;}
+            [JsonPropertyName("text")]
+            public Field _text {get;set;}
+            [JsonPropertyName("element")]
+            public Field _element {get;set;}
+
+        }
+    
+        public class BuilderEntity
+        {
+            public BuilderEntity()
+            {
+                _source = new Field();
+                _rule = new RuleEntity[0];
+
+            }
+            [JsonPropertyName("source")]
+            public Field _source {get;set;}
+            [JsonPropertyName("rule")]
+            public RuleEntity[] _rule {get;set;}
+
+        }
+    
+        public class SchemaEntity
+        {
+            public SchemaEntity()
+            {
+                _uuid = new Field();
+                _name = new Field();
+                _builder = new BuilderEntity[0];
+
+            }
+            [JsonPropertyName("uuid")]
+            public Field _uuid {get;set;}
+            [JsonPropertyName("name")]
+            public Field _name {get;set;}
+            [JsonPropertyName("builder")]
+            public BuilderEntity[] _builder {get;set;}
+
+        }
+    
+        public class SchemaListResponse
+        {
+            public SchemaListResponse()
+            {
+                _status = new Status();
+                _total = new Field();
+                _entity = new SchemaEntity[0];
+
+            }
+            [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("total")]
+            public Field _total {get;set;}
+            [JsonPropertyName("entity")]
+            public SchemaEntity[] _entity {get;set;}
+
+        }
+    
         public class Status
         {
             public Status()
@@ -557,6 +626,8 @@ public class Field
                 _uuid = new Field();
                 _name = new Field();
                 _label = new Field();
+                _value = new Field();
+                _schema = new Field();
 
             }
             [JsonPropertyName("uuid")]
@@ -565,6 +636,10 @@ public class Field
             public Field _name {get;set;}
             [JsonPropertyName("label")]
             public Field _label {get;set;}
+            [JsonPropertyName("value")]
+            public Field _value {get;set;}
+            [JsonPropertyName("schema")]
+            public Field _schema {get;set;}
 
         }
     

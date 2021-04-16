@@ -25,15 +25,34 @@ namespace HKG.Module.Metatable
 
             public void RefreshSourceList(long _total, object _entity)
             {
-                panel.btnList.Enabled = true;
-                panel.lTotal.Text = _total.ToString();
-                panel.listResult.DataSource = (Dictionary<string, string>)_entity;
+                panel.btnRefresh.Enabled = true;
+                panel.sources = (Dictionary<string, Dictionary<string, string>>)_entity;
+                foreach (string path in panel.sources.Keys)
+                {
+                    string[] sections = path.Split("/");
+                    var nodes = panel.tvSource.Nodes;
+                    foreach (string section in sections)
+                    {
+                        if (string.IsNullOrEmpty(section))
+                            continue;
+                        var found = nodes.Find(section, false);
+                        if (found.Length == 0)
+                        {
+                            TreeNode newNode = new TreeNode();
+                            newNode.Name = section;
+                            newNode.Text = section;
+                            nodes.Add(newNode);
+                            found = new TreeNode[] { newNode };
+                        }
+                        nodes = found[0].Nodes;
+                    }
+                }
+                panel.tvSource.ExpandAll();
             }
         }
 
         public SourceFacade facade { get; set; }
-        private BindingSource listResult = new BindingSource();
-
+        private Dictionary<string, Dictionary<string, string>> sources = new Dictionary<string, Dictionary<string, string>>();
 
         public SourcePanel()
         {
@@ -46,11 +65,7 @@ namespace HKG.Module.Metatable
             this.Name = "rootPanel";
             this.TabIndex = 0;
 
-            this.dgvPage.DataSource = new BindingSource(listResult, null);
-
-            this.tbOffset.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbOffset_KeyPress);
-            this.tbCount.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbOffset_KeyPress);
-            this.btnList.Click += new System.EventHandler(this.btnList_Click);
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             this.btnImportYaml.Click += new System.EventHandler(this.btnImportYaml_Click);
         }
 
@@ -79,25 +94,27 @@ namespace HKG.Module.Metatable
 
         }
 
-        private void tbCount_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar != '\b' && !Char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void btnList_Click(object sender, EventArgs e)
+        private void btnRefresh_Click(object sender, EventArgs e)
         {
             var bridge = facade.getViewBridge() as ISourceViewBridge;
             long offset = 0;
-            long count = 50;
-            if (!long.TryParse(tbOffset.Text, out offset))
-                offset = 0;
-            if (!long.TryParse(tbCount.Text, out count))
-                count = 50;
-            btnList.Enabled = false;
+            long count = int.MaxValue;
+            btnRefresh.Enabled = false;
             bridge.OnListSubmit(offset, count);
+        }
+
+        private void tvSchema_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            TreeNode node = e.Node;
+            if (node.Nodes.Count > 0)
+                return;
+            string fullpath = node.FullPath;
+            Dictionary<string, string> source;
+            if (!this.sources.TryGetValue(fullpath, out source))
+                return;
+            tbAddress.Text = source["address"];
+            tbAttribute.Text = source["expression"];
+            tbExpression.Text = source["attribute"];
         }
     }
 }

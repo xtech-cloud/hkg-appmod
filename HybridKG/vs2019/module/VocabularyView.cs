@@ -60,15 +60,17 @@ namespace HKG.Module.Metatable
             var rsp = (Proto.VocabularyListResponse)_data;
             if (rsp._status._code.AsInt() == 0)
             {
-                Dictionary<string, string> entity = new Dictionary<string, string>();
+                Dictionary<string, List<string>> entity = new Dictionary<string, List<string>>();
                 foreach(var e in rsp._entity)
                 {
-                    string labels = "";
-                    foreach (string label in e._label.AsStringAry())
-                        labels += string.Format("{0}, ", label);
-                    if (!string.IsNullOrEmpty(labels))
-                        labels = labels.Remove(labels.Length - 2, 2);
-                    entity[e._name.AsString()] = labels;
+                    List<string> labels = new List<string>();
+                    foreach (var l in e._label.AsStringAry())
+                        labels.Add(l);
+                    foreach(var v in e._value.AsStringAry())
+                    {
+                        string path = string.Format("{0}/{1}", e._name.AsString(), v);
+                        entity[path] = labels;
+                    }
                 }
                 bridge.RefreshVocabularyList(rsp._total.AsLong(), entity);
             }

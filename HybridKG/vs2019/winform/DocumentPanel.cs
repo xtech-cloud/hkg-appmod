@@ -26,7 +26,7 @@ namespace HKG.Module.Collector
             public void RefreshList(long _total, object _result)
             {
                 panel.btnScrapeAll.Enabled = true;
-                panel.btnScrapeNew.Enabled = true;
+                panel.btnScrapeEmpty.Enabled = true;
 
                 panel.btnList.Enabled = true;
                 panel.lvDocument.Clear();
@@ -52,7 +52,7 @@ namespace HKG.Module.Collector
             {
                 panel.pbScrape.Value = 100;
                 panel.btnScrapeAll.Enabled = true;
-                panel.btnScrapeNew.Enabled = true;
+                panel.btnScrapeEmpty.Enabled = true;
             }
 
             public void RefreshDocument(string _rawText)
@@ -79,7 +79,7 @@ namespace HKG.Module.Collector
         private void btnScrapeAll_Click(object sender, EventArgs e)
         {
             this.btnScrapeAll.Enabled = false;
-            this.btnScrapeNew.Enabled = false;
+            this.btnScrapeEmpty.Enabled = false;
             var bridge = crossFacade.getViewBridge() as ICrossViewBridge;
             bridge.OnScrapeFromMetatableSubmit();
         }
@@ -91,13 +91,13 @@ namespace HKG.Module.Collector
             bridge.OnListSubmit(0, 0);
         }
 
-        private void btnScrapeNew_Click(object sender, EventArgs e)
+        private void btnScrapeEmpty_Click(object sender, EventArgs e)
         {
             this.btnScrapeAll.Enabled = false;
-            this.btnScrapeNew.Enabled = false;
+            this.btnScrapeEmpty.Enabled = false;
             MessageBox.Show("暂未实现的功能");
             this.btnScrapeAll.Enabled = true;
-            this.btnScrapeNew.Enabled = true;
+            this.btnScrapeEmpty.Enabled = true;
         }
 
         private void lvDocument_SelectedIndexChanged(object sender, EventArgs e)
@@ -110,5 +110,21 @@ namespace HKG.Module.Collector
             bridge.OnDocumentSelected(uuid);
         }
 
+        private void btnTidyAll_Click(object sender, EventArgs e)
+        {
+            this.btnScrapeAll.Enabled = false;
+            this.btnScrapeEmpty.Enabled = false;
+            var bridge = crossFacade.getViewBridge() as ICrossViewBridge;
+            bridge.OnTidyFromMetatableSubmit();
+        }
+
+        private void btnTidyEmpty_Click(object sender, EventArgs e)
+        {
+            this.btnTidyAll.Enabled = false;
+            this.btnTidyEmpty.Enabled = false;
+            MessageBox.Show("暂未实现的功能");
+            this.btnTidyAll.Enabled = true;
+            this.btnTidyEmpty.Enabled = true;
+        }
     }
 }

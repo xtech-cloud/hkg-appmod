@@ -5,5 +5,6 @@ namespace HKG.Module
     public interface ICrossViewBridge : View.Facade.Bridge
     {
         void OnScrapeFromMetatableSubmit();
+        void OnTidyFromMetatableSubmit();
     }
 }
