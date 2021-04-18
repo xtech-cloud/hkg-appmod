@@ -35,10 +35,16 @@ namespace HKG.Module.Metatable
             this.btnRefresh = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.tbName = new System.Windows.Forms.TextBox();
             this.tbField = new System.Windows.Forms.TextBox();
-            this.tbText = new System.Windows.Forms.TextBox();
             this.tbElement = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.tbType = new System.Windows.Forms.TextBox();
+            this.tbPairKey = new System.Windows.Forms.TextBox();
+            this.tbPairValue = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnImportYaml
@@ -78,7 +84,7 @@ namespace HKG.Module.Metatable
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(56, 17);
             this.label1.TabIndex = 11;
-            this.label1.Text = "存储字段";
+            this.label1.Text = "规则名称";
             // 
             // label2
             // 
@@ -87,21 +93,21 @@ namespace HKG.Module.Metatable
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(56, 17);
             this.label2.TabIndex = 12;
-            this.label2.Text = "显示文本";
+            this.label2.Text = "存储字段";
+            // 
+            // tbName
+            // 
+            this.tbName.Location = new System.Drawing.Point(374, 28);
+            this.tbName.Name = "tbName";
+            this.tbName.Size = new System.Drawing.Size(299, 23);
+            this.tbName.TabIndex = 13;
             // 
             // tbField
             // 
-            this.tbField.Location = new System.Drawing.Point(374, 28);
+            this.tbField.Location = new System.Drawing.Point(374, 58);
             this.tbField.Name = "tbField";
             this.tbField.Size = new System.Drawing.Size(299, 23);
-            this.tbField.TabIndex = 13;
-            // 
-            // tbText
-            // 
-            this.tbText.Location = new System.Drawing.Point(374, 58);
-            this.tbText.Name = "tbText";
-            this.tbText.Size = new System.Drawing.Size(299, 23);
-            this.tbText.TabIndex = 14;
+            this.tbField.TabIndex = 14;
             // 
             // tbElement
             // 
@@ -119,14 +125,68 @@ namespace HKG.Module.Metatable
             this.label3.TabIndex = 16;
             this.label3.Text = "原始文本标签";
             // 
+            // tbType
+            // 
+            this.tbType.Location = new System.Drawing.Point(374, 118);
+            this.tbType.Name = "tbType";
+            this.tbType.Size = new System.Drawing.Size(299, 23);
+            this.tbType.TabIndex = 17;
+            // 
+            // tbPairKey
+            // 
+            this.tbPairKey.Location = new System.Drawing.Point(374, 148);
+            this.tbPairKey.Name = "tbPairKey";
+            this.tbPairKey.Size = new System.Drawing.Size(299, 23);
+            this.tbPairKey.TabIndex = 18;
+            // 
+            // tbPairValue
+            // 
+            this.tbPairValue.Location = new System.Drawing.Point(374, 178);
+            this.tbPairValue.Name = "tbPairValue";
+            this.tbPairValue.Size = new System.Drawing.Size(299, 23);
+            this.tbPairValue.TabIndex = 19;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(276, 121);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(32, 17);
+            this.label4.TabIndex = 20;
+            this.label4.Text = "类型";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(276, 151);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(59, 17);
+            this.label5.TabIndex = 21;
+            this.label5.Text = "Map的键";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(276, 181);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(59, 17);
+            this.label6.TabIndex = 22;
+            this.label6.Text = "Map的值";
+            // 
             // SchemaPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.tbPairValue);
+            this.Controls.Add(this.tbPairKey);
+            this.Controls.Add(this.tbType);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.tbElement);
-            this.Controls.Add(this.tbText);
             this.Controls.Add(this.tbField);
+            this.Controls.Add(this.tbName);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnRefresh);
@@ -146,9 +206,15 @@ namespace HKG.Module.Metatable
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox tbName;
         private System.Windows.Forms.TextBox tbField;
-        private System.Windows.Forms.TextBox tbText;
         private System.Windows.Forms.TextBox tbElement;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox tbType;
+        private System.Windows.Forms.TextBox tbPairKey;
+        private System.Windows.Forms.TextBox tbPairValue;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
     }
 }

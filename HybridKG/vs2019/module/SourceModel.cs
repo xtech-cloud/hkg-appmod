@@ -47,5 +47,16 @@ namespace HKG.Module.Metatable
             status.sources = _status.sources;
             status.total = _status.total;
         }
+
+        public string HostToName(string _host)
+        {
+            var found =  status.sources.Find((_item) =>
+            {
+                return _item._address.AsString().Contains(_host);
+            });
+            if (null == found)
+                return "";
+            return found._name.AsString();
+        }
     }
 }

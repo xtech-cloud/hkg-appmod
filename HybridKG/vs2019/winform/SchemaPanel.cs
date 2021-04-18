@@ -102,8 +102,11 @@ namespace HKG.Module.Metatable
             if (!this.rules.TryGetValue(fullpath, out rule))
                 return;
             tbField.Text = rule["field"];
-            tbText.Text = rule["text"];
+            tbName.Text = rule["name"];
             tbElement.Text = rule["element"];
+            tbType.Text = rule["type"];
+            tbPairKey.Text = rule["pairKey"];
+            tbPairValue.Text = rule["pairValue"];
         }
     }
 }

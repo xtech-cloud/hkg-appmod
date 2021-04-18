@@ -1,9 +1,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
+using System.Text.Json;
 using System.Windows.Forms;
 using XTC.oelMVCS;
+using System.Text.Unicode;
+using System.Text.Encodings.Web;
 
 namespace HKG.Module.Collector
 {
@@ -53,11 +56,45 @@ namespace HKG.Module.Collector
                 panel.pbScrape.Value = 100;
                 panel.btnScrapeAll.Enabled = true;
                 panel.btnScrapeEmpty.Enabled = true;
+                panel.btnTidyAll.Enabled = true;
+                panel.btnTidyEmpty.Enabled = true;
             }
 
-            public void RefreshDocument(string _rawText)
+            public void RefreshTidyProgress(float _value)
             {
-                panel.wbDocument.DocumentText = _rawText;
+                panel.pbScrape.Value = (int)(_value * 100);
+            }
+
+            public void RefreshTidyFinish()
+            {
+                panel.pbScrape.Value = 100;
+                panel.btnTidyAll.Enabled = true;
+                panel.btnTidyEmpty.Enabled = true;
+                panel.btnScrapeAll.Enabled = true;
+                panel.btnScrapeEmpty.Enabled = true;
+            }
+
+            public void RefreshDocument(object _doc)
+            {
+                Dictionary<string, string> document = (Dictionary<string, string>)_doc;
+                panel.llAddress.Text = document["address"];
+                panel.lTime.Text = document["crawledAt"];
+                panel.lLabel.Text = document["keyword"];
+                panel.wbDocument.DocumentText = document["rawText"];
+                panel.rtbTidyText.Text = prettyJson(document["tidyText"]);
+            }
+
+            private string prettyJson(string unPrettyJson)
+            {
+                var options = new JsonSerializerOptions()
+                {
+                    WriteIndented = true
+                };
+                options.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+
+                var jsonElement = JsonSerializer.Deserialize<JsonElement>(unPrettyJson);
+
+                return JsonSerializer.Serialize(jsonElement, options);
             }
         }
 
@@ -80,6 +117,8 @@ namespace HKG.Module.Collector
         {
             this.btnScrapeAll.Enabled = false;
             this.btnScrapeEmpty.Enabled = false;
+            this.btnTidyAll.Enabled = false;
+            this.btnTidyEmpty.Enabled = false;
             var bridge = crossFacade.getViewBridge() as ICrossViewBridge;
             bridge.OnScrapeFromMetatableSubmit();
         }
@@ -114,6 +153,8 @@ namespace HKG.Module.Collector
         {
             this.btnScrapeAll.Enabled = false;
             this.btnScrapeEmpty.Enabled = false;
+            this.btnTidyAll.Enabled = false;
+            this.btnTidyEmpty.Enabled = false;
             var bridge = crossFacade.getViewBridge() as ICrossViewBridge;
             bridge.OnTidyFromMetatableSubmit();
         }

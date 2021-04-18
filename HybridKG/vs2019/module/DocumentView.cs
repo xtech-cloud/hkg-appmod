@@ -35,6 +35,8 @@ namespace HKG.Module.Collector
 
             route("/hkg/collector/document/scrape/progress", this.handleScrapeProgress);
             route("/hkg/collector/document/scrape/finish", this.handleScrapeFinish);
+            route("/hkg/collector/document/tidy/progress", this.handleTidyProgress);
+            route("/hkg/collector/document/tidy/finish", this.handleTidyFinish);
             route("/hkg/collector/document/selected", this.handleDocumentSelected);
             
         }
@@ -103,6 +105,17 @@ namespace HKG.Module.Collector
             bridge.RefreshScrapeProgress(progress);
         }
 
+        private void handleTidyFinish(Model.Status _status, object _data)
+        {
+            bridge.RefreshTidyFinish();
+        }
+
+        private void handleTidyProgress(Model.Status _status, object _data)
+        {
+            float progress = (float)_data;
+            bridge.RefreshTidyProgress(progress);
+        }
+
         private void handleScrapeFinish(Model.Status _status, object _data)
         {
             bridge.RefreshScrapeFinish();
@@ -119,7 +132,15 @@ namespace HKG.Module.Collector
             if (null == doc)
                 return;
 
-            bridge.RefreshDocument(doc._rawText.AsString());
+            long timestamp = doc._crawledAt.AsLong();
+            DateTimeOffset dto = DateTimeOffset.FromUnixTimeSeconds(timestamp);
+            Dictionary<string, string> data = new Dictionary<string, string>();
+            data["rawText"] = doc._rawText.AsString();
+            data["tidyText"] = doc._tidyText.AsString();
+            data["address"] = doc._address.AsString();
+            data["crawledAt"] = dto.LocalDateTime.ToString();
+            data["keyword"] = doc._keyword.AsString();
+            bridge.RefreshDocument(data);
         }
 
 

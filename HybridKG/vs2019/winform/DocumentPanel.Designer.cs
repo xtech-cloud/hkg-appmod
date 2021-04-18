@@ -39,11 +39,19 @@ namespace HKG.Module.Collector
             this.btnTidyAll = new System.Windows.Forms.Button();
             this.btnScrapeEmpty = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPageText = new System.Windows.Forms.TabPage();
+            this.rtbTidyText = new System.Windows.Forms.RichTextBox();
             this.tabPageWeb = new System.Windows.Forms.TabPage();
             this.wbDocument = new System.Windows.Forms.WebBrowser();
-            this.tabPageText = new System.Windows.Forms.TabPage();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lTime = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.llAddress = new System.Windows.Forms.LinkLabel();
+            this.label4 = new System.Windows.Forms.Label();
+            this.lLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.tabPageText.SuspendLayout();
             this.tabPageWeb.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -143,13 +151,36 @@ namespace HKG.Module.Collector
             this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl1.Controls.Add(this.tabPageWeb);
             this.tabControl1.Controls.Add(this.tabPageText);
-            this.tabControl1.Location = new System.Drawing.Point(244, 10);
+            this.tabControl1.Controls.Add(this.tabPageWeb);
+            this.tabControl1.Location = new System.Drawing.Point(244, 83);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(484, 602);
+            this.tabControl1.Size = new System.Drawing.Size(484, 529);
             this.tabControl1.TabIndex = 6;
+            // 
+            // tabPageText
+            // 
+            this.tabPageText.Controls.Add(this.rtbTidyText);
+            this.tabPageText.Location = new System.Drawing.Point(4, 26);
+            this.tabPageText.Name = "tabPageText";
+            this.tabPageText.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageText.Size = new System.Drawing.Size(476, 499);
+            this.tabPageText.TabIndex = 1;
+            this.tabPageText.Text = "结构化文本格式";
+            this.tabPageText.UseVisualStyleBackColor = true;
+            // 
+            // rtbTidyText
+            // 
+            this.rtbTidyText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtbTidyText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.rtbTidyText.Location = new System.Drawing.Point(3, 3);
+            this.rtbTidyText.Name = "rtbTidyText";
+            this.rtbTidyText.Size = new System.Drawing.Size(470, 491);
+            this.rtbTidyText.TabIndex = 0;
+            this.rtbTidyText.Text = "";
             // 
             // tabPageWeb
             // 
@@ -157,7 +188,7 @@ namespace HKG.Module.Collector
             this.tabPageWeb.Location = new System.Drawing.Point(4, 26);
             this.tabPageWeb.Name = "tabPageWeb";
             this.tabPageWeb.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageWeb.Size = new System.Drawing.Size(476, 572);
+            this.tabPageWeb.Size = new System.Drawing.Size(476, 499);
             this.tabPageWeb.TabIndex = 0;
             this.tabPageWeb.Text = "网页格式";
             this.tabPageWeb.UseVisualStyleBackColor = true;
@@ -169,23 +200,74 @@ namespace HKG.Module.Collector
             | System.Windows.Forms.AnchorStyles.Right)));
             this.wbDocument.Location = new System.Drawing.Point(4, 4);
             this.wbDocument.Name = "wbDocument";
-            this.wbDocument.Size = new System.Drawing.Size(469, 565);
+            this.wbDocument.Size = new System.Drawing.Size(469, 487);
             this.wbDocument.TabIndex = 0;
             // 
-            // tabPageText
+            // label1
             // 
-            this.tabPageText.Location = new System.Drawing.Point(4, 26);
-            this.tabPageText.Name = "tabPageText";
-            this.tabPageText.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageText.Size = new System.Drawing.Size(476, 572);
-            this.tabPageText.TabIndex = 1;
-            this.tabPageText.Text = "结构化文本格式";
-            this.tabPageText.UseVisualStyleBackColor = true;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(244, 10);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(56, 17);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "采集时间";
+            // 
+            // lTime
+            // 
+            this.lTime.AutoSize = true;
+            this.lTime.Location = new System.Drawing.Point(307, 10);
+            this.lTime.Name = "lTime";
+            this.lTime.Size = new System.Drawing.Size(43, 17);
+            this.lTime.TabIndex = 8;
+            this.lTime.Text = "label2";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(244, 31);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(56, 17);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "采集地址";
+            // 
+            // llAddress
+            // 
+            this.llAddress.AutoSize = true;
+            this.llAddress.Location = new System.Drawing.Point(307, 31);
+            this.llAddress.Name = "llAddress";
+            this.llAddress.Size = new System.Drawing.Size(66, 17);
+            this.llAddress.TabIndex = 10;
+            this.llAddress.TabStop = true;
+            this.llAddress.Text = "linkLabel1";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(244, 52);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(56, 17);
+            this.label4.TabIndex = 11;
+            this.label4.Text = "采集标签";
+            // 
+            // lLabel
+            // 
+            this.lLabel.AutoSize = true;
+            this.lLabel.Location = new System.Drawing.Point(307, 52);
+            this.lLabel.Name = "lLabel";
+            this.lLabel.Size = new System.Drawing.Size(43, 17);
+            this.lLabel.TabIndex = 12;
+            this.lLabel.Text = "label5";
             // 
             // DocumentPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lLabel);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.llAddress);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.lTime);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.groupBox1);
             this.Margin = new System.Windows.Forms.Padding(4);
@@ -193,8 +275,10 @@ namespace HKG.Module.Collector
             this.Size = new System.Drawing.Size(740, 640);
             this.groupBox1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
+            this.tabPageText.ResumeLayout(false);
             this.tabPageWeb.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -212,5 +296,12 @@ namespace HKG.Module.Collector
         private System.Windows.Forms.WebBrowser wbDocument;
         private System.Windows.Forms.Button btnTidyEmpty;
         private System.Windows.Forms.Button btnTidyAll;
+        private System.Windows.Forms.RichTextBox rtbTidyText;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lTime;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.LinkLabel llAddress;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label lLabel;
     }
 }

@@ -7,7 +7,7 @@ using XTC.oelMVCS;
 
 namespace HKG.Module.Collector.Proto
 {
-public class Field
+    public class Field
     {
         public enum Tag
         {
@@ -23,7 +23,13 @@ public class Field
             LongAryValue = 13,
             FloatAryValue = 14,
             DoubleAryValue = 15,
-            BoolAryValue = 16
+            BoolAryValue = 16,
+            StringMapValue = 21,
+            IntMapValue = 22,
+            LongMapValue = 23,
+            FloatMapValue = 24,
+            DoubleMapValue = 25,
+            BoolMapValue = 26
         }
 
         private string value_ = "";
@@ -87,7 +93,7 @@ public class Field
             string ary = "";
             foreach(string v in _value)
             {
-                ary += string.Format("{0},", v);
+                ary += string.Format("\"{0}\",", v);
             }
             if(!string.IsNullOrEmpty(ary))
             {
@@ -182,6 +188,108 @@ public class Field
             return any;
         }
 
+        public static Field FromStringMap(Dictionary<string, string> _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.StringAryValue;
+            string ary = "";
+            foreach (var pair in _value)
+            {
+                ary += string.Format("\"{0}\": \"{1}\",", pair.Key, pair.Value);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("{{0}}", ary);
+            return any;
+        }
+
+        public static Field FromFloatMap(Dictionary<string, float> _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.FloatAryValue;
+            string ary = "";
+            foreach (var pair in _value)
+            {
+                ary += string.Format("\"{0}\": {1},", pair.Key, pair.Value);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("{{0}}", ary);
+            return any;
+        }
+
+        public static Field FromDoubleMap(Dictionary<string, double> _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.DoubleAryValue;
+            string ary = "";
+            foreach (var pair in _value)
+            {
+                ary += string.Format("\"{0}\": {1},", pair.Key, pair.Value);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("{{0}}", ary);
+            return any;
+        }
+
+        public static Field FromBoolMap(Dictionary<string, int> _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.BoolAryValue;
+            string ary = "";
+            foreach (var pair in _value)
+            {
+                ary += string.Format("\"{0}\": {1},", pair.Key, pair.Value);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("{{0}}", ary);
+            return any;
+        }
+
+        public static Field FromIntMap(Dictionary<string, int> _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.IntAryValue;
+            string ary = "";
+            foreach (var pair in _value)
+            {
+                ary += string.Format("\"{0}\": {1},", pair.Key, pair.Value);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("{{0}}", ary);
+            return any;
+        }
+
+        public static Field FromLongMap(Dictionary<string, long> _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.LongMapValue;
+            string ary = "";
+            foreach (var pair in _value)
+            {
+                ary += string.Format("\"{0}\": {1},", pair.Key, pair.Value);
+            }
+            if (!string.IsNullOrEmpty(ary))
+            {
+                ary = ary.Remove(ary.Length - 1, 1);
+            }
+            any.value_ = string.Format("{{0}}", ary);
+            return any;
+        }
+
         public bool IsNull()
         {
             return tag_ == Tag.NULL;
@@ -247,6 +355,36 @@ public class Field
             return tag_ == Tag.BoolAryValue;
         }
 
+        public bool IsStringMap()
+        {
+            return tag_ == Tag.StringMapValue;
+        }
+
+        public bool IsIntMap()
+        {
+            return tag_ == Tag.IntMapValue;
+        }
+
+        public bool IsLongMap()
+        {
+            return tag_ == Tag.LongMapValue;
+        }
+
+        public bool IsFloatMap()
+        {
+            return tag_ == Tag.FloatMapValue;
+        }
+
+        public bool IsDoubleMap()
+        {
+            return tag_ == Tag.DoubleMapValue;
+        }
+
+        public bool IsBoolMap()
+        {
+            return tag_ == Tag.BoolMapValue;
+        }
+
 
 
         public string AsString()
@@ -299,6 +437,8 @@ public class Field
                 foreach (string e in ary.Split(","))
                 {
                     string value = e.Trim();
+                    value = value.Remove(0, 1);
+                    value = value.Remove(value.Length - 1, 1);
                     v.Add(value);
                 }
             }
@@ -400,32 +540,171 @@ public class Field
             return v.ToArray();
         }
 
+        public Dictionary<string, string> AsStringMap()
+        {
+            Dictionary<string, string> v = new Dictionary<string, string>();
+            if (value_.StartsWith("{") && value_.EndsWith("}"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    string[] pair = e.Trim().Split(":");
+                    string key = pair[0].Trim();
+                    key = key.Remove(0, 1);
+                    key = key.Remove(key.Length - 1, 1);
+                    string value = pair[0].Trim();
+                    value = value.Remove(0, 1);
+                    value = value.Remove(value.Length - 1, 1);
+                    v[key] = value;
+                }
+            }
+            return v;
+        }
+
+        public Dictionary<string, int> AsIntMap()
+        {
+            Dictionary<string, int> v = new Dictionary<string, int>();
+            if (value_.StartsWith("{") && value_.EndsWith("}"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    string[] pair = e.Trim().Split(":");
+                    string key = pair[0].Trim();
+                    key = key.Remove(0, 1);
+                    key = key.Remove(key.Length - 1, 1);
+                    int value = 0;
+                    int.Parse(pair[1].Trim());
+                    v[key] = value;
+                }
+            }
+            return v;
+        }
+
+        public Dictionary<string, long> AsLongMap()
+        {
+            Dictionary<string, long> v = new Dictionary<string, long>();
+            if (value_.StartsWith("{") && value_.EndsWith("}"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    string[] pair = e.Trim().Split(":");
+                    string key = pair[0].Trim();
+                    key = key.Remove(0, 1);
+                    key = key.Remove(key.Length - 1, 1);
+                    long value = 0;
+                    long.Parse(pair[1].Trim());
+                    v[key] = value;
+                }
+            }
+            return v;
+        }
+
+        public Dictionary<string, float> AsFloatMap()
+        {
+            Dictionary<string, float> v = new Dictionary<string, float>();
+            if (value_.StartsWith("{") && value_.EndsWith("}"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    string[] pair = e.Trim().Split(":");
+                    string key = pair[0].Trim();
+                    key = key.Remove(0, 1);
+                    key = key.Remove(key.Length - 1, 1);
+                    float value = 0;
+                    float.Parse(pair[1].Trim());
+                    v[key] = value;
+                }
+            }
+            return v;
+        }
+
+        public Dictionary<string, double> AsDoubleMap()
+        {
+            Dictionary<string, double> v = new Dictionary<string, double>();
+            if (value_.StartsWith("{") && value_.EndsWith("}"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    string[] pair = e.Trim().Split(":");
+                    string key = pair[0].Trim();
+                    key = key.Remove(0, 1);
+                    key = key.Remove(key.Length - 1, 1);
+                    double value = 0;
+                    double.Parse(pair[1].Trim());
+                    v[key] = value;
+                }
+            }
+            return v;
+        }
+
+        public Dictionary<string, bool> AsBoolMap()
+        {
+            Dictionary<string, bool> v = new Dictionary<string, bool>();
+            if (value_.StartsWith("{") && value_.EndsWith("}"))
+            {
+                string ary = value_.Remove(0, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
+                foreach (string e in ary.Split(","))
+                {
+                    string[] pair = e.Trim().Split(":");
+                    string key = pair[0].Trim();
+                    key = key.Remove(0, 1);
+                    key = key.Remove(key.Length - 1, 1);
+                    bool value = false;
+                    bool.Parse(pair[1].Trim());
+                    v[key] = value;
+                }
+            }
+            return v;
+        }
+
         public Any AsAny()
         {
             if(IsString())
                 return Any.FromString(AsString());
             if(IsInt())
-                return Any.FromInt(AsInt());
+                return Any.FromInt32(AsInt());
             if(IsLong())
-                return Any.FromLong(AsLong());
+                return Any.FromInt64(AsLong());
             if(IsFloat())
-                return Any.FromFloat(AsFloat());
+                return Any.FromFloat32(AsFloat());
             if(IsDouble())
-                return Any.FromDouble(AsDouble());
+                return Any.FromFloat64(AsDouble());
             if(IsBool())
                 return Any.FromBool(AsBool());
             if (IsStringAry())
                 return Any.FromStringAry(AsStringAry());
             if (IsIntAry())
-                return Any.FromIntAry(AsIntAry());
+                return Any.FromInt32Ary(AsIntAry());
             if (IsLongAry())
-                return Any.FromLongAry(AsLongAry());
+                return Any.FromInt64Ary(AsLongAry());
             if (IsFloatAry())
-                return Any.FromFloatAry(AsFloatAry());
+                return Any.FromFloat32Ary(AsFloatAry());
             if (IsDoubleAry())
-                return Any.FromDoubleAry(AsDoubleAry());
+                return Any.FromFloat64Ary(AsDoubleAry());
             if (IsBoolAry())
                 return Any.FromBoolAry(AsBoolAry());
+            if (IsStringAry())
+                return Any.FromStringAry(AsStringAry());
+            if (IsIntMap())
+                return Any.FromInt32Map(AsIntMap());
+            if (IsLongMap())
+                return Any.FromInt64Map(AsLongMap());
+            if (IsFloatMap())
+                return Any.FromFloat32Map(AsFloatMap());
+            if (IsDoubleMap())
+                return Any.FromFloat64Map(AsDoubleMap());
+            if (IsBoolMap())
+                return Any.FromBoolMap(AsBoolMap());
             return new Any();
         }
     }//class
@@ -448,6 +727,24 @@ public class Field
             public Field _address {get;set;}
             [JsonPropertyName("attribute")]
             public Field _attribute {get;set;}
+
+        }
+    
+        public class DocumentTidyRequest
+        {
+            public DocumentTidyRequest()
+            {
+                _uuid = new Field();
+                _host = new Field();
+                _rule = new System.Collections.Generic.Dictionary<string, string>();
+
+            }
+            [JsonPropertyName("uuid")]
+            public Field _uuid {get;set;}
+            [JsonPropertyName("host")]
+            public Field _host {get;set;}
+            [JsonPropertyName("rule")]
+            public System.Collections.Generic.Dictionary<string, string> _rule {get;set;}
 
         }
     
@@ -505,6 +802,7 @@ public class Field
                 _keyword = new Field();
                 _address = new Field();
                 _rawText = new Field();
+                _tidyText = new Field();
                 _crawledAt = new Field();
 
             }
@@ -518,6 +816,8 @@ public class Field
             public Field _address {get;set;}
             [JsonPropertyName("rawText")]
             public Field _rawText {get;set;}
+            [JsonPropertyName("tidyText")]
+            public Field _tidyText {get;set;}
             [JsonPropertyName("crawledAt")]
             public Field _crawledAt {get;set;}
 

@@ -47,5 +47,29 @@ namespace HKG.Module.Metatable
             status.schemas = _status.schemas;
             status.total = _status.total;
         }
+
+        public Dictionary<string, string> GetAllRule(string _schemaName)
+        {
+            Dictionary<string, string> rules = new Dictionary<string, string>();
+            foreach(Proto.SchemaEntity schema in status.schemas)
+            {
+                if (!schema._name.AsString().Equals(_schemaName))
+                    continue;
+                foreach (Proto.RuleEntity r in schema._rule)
+                {
+                    string rule = "";
+                    if (!string.IsNullOrEmpty(r._type.AsString()))
+                        rule += string.Format("$t={0};", r._type.AsString());
+                    if (!string.IsNullOrEmpty(r._element.AsString()))
+                        rule += string.Format("$e={0};", r._element.AsString());
+                    if (!string.IsNullOrEmpty(r._pair._key.AsString()))
+                        rule += string.Format("$pk={0};", r._pair._key.AsString());
+                    if (!string.IsNullOrEmpty(r._pair._value.AsString()))
+                        rule += string.Format("$pv={0};", r._pair._value.AsString());
+                    rules[rule] = r._field.AsString();
+                }
+            }
+            return rules;
+        }
     }
 }

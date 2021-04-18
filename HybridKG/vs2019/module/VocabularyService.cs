@@ -60,6 +60,9 @@ namespace HKG.Module.Metatable
                 options.Converters.Add(new FieldConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.VocabularyListResponse>(_reply, options);
                 VocabularyModel.VocabularyStatus status = Model.Status.New<VocabularyModel.VocabularyStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
+                status.vocabularies = new List<Proto.VocabularyEntity>(rsp._entity);
+                status.total = rsp._total.AsLong();
+                model.SaveDocuments(status);
                 model.Broadcast("/hkg/metatable/Vocabulary/List", rsp);
             }, (_err) =>
             {

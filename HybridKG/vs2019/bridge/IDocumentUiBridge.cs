@@ -11,7 +11,9 @@ namespace HKG.Module.Collector
 
         void RefreshScrapeProgress(float _value);
         void RefreshScrapeFinish();
+        void RefreshTidyProgress(float _value);
+        void RefreshTidyFinish();
 
-        void RefreshDocument(string _rawText);
+        void RefreshDocument(object _doc);
     }
 }

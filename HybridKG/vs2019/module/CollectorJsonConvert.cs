@@ -1,5 +1,6 @@
 
 
+
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -41,37 +42,37 @@ namespace HKG.Module.Collector
                 }
                 writer.WriteEndArray();
             }
-            else if (_value.IsIntAry())
+            else if (_value.IsInt32Ary())
             {
                 writer.WriteStartArray();
-                foreach (int v in _value.AsIntAry())
+                foreach (int v in _value.AsInt32Ary())
                 {
                     writer.WriteNumberValue(v);
                 }
                 writer.WriteEndArray();
             }
-            else if (_value.IsLongAry())
+            else if (_value.IsInt64Ary())
             {
                 writer.WriteStartArray();
-                foreach (long v in _value.AsLongAry())
+                foreach (long v in _value.AsInt64Ary())
                 {
                     writer.WriteNumberValue(v);
                 }
                 writer.WriteEndArray();
             }
-            else if (_value.IsFloatAry())
+            else if (_value.IsFloat32Ary())
             {
                 writer.WriteStartArray();
-                foreach (float v in _value.AsFloatAry())
+                foreach (float v in _value.AsFloat32Ary())
                 {
                     writer.WriteNumberValue(v);
                 }
                 writer.WriteEndArray();
             }
-            else if (_value.IsDoubleAry())
+            else if (_value.IsFloat64Ary())
             {
                 writer.WriteStartArray();
-                foreach (double v in _value.AsDoubleAry())
+                foreach (double v in _value.AsFloat64Ary())
                 {
                     writer.WriteNumberValue(v);
                 }
@@ -85,6 +86,60 @@ namespace HKG.Module.Collector
                     writer.WriteBooleanValue(v);
                 }
                 writer.WriteEndArray();
+            }
+            else if (_value.IsStringMap())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsStringMap())
+                {
+                    writer.WriteString(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
+            }
+            else if (_value.IsInt32Map())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsInt32Map())
+                {
+                    writer.WriteNumber(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
+            }
+            else if (_value.IsInt64Map())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsInt64Map())
+                {
+                    writer.WriteNumber(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
+            }
+            else if (_value.IsFloat32Map())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsFloat32Map())
+                {
+                    writer.WriteNumber(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
+            }
+            else if (_value.IsFloat64Map())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsFloat64Map())
+                {
+                    writer.WriteNumber(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
+            }
+            else if (_value.IsBoolMap())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsBoolMap())
+                {
+                    writer.WriteBoolean(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
             }
         }
     }//class

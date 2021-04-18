@@ -6,7 +6,7 @@ using XTC.oelMVCS;
 
 namespace HKG.Module.Metatable
 {
-    public class SchemaView: View
+    public class SchemaView : View
     {
         public const string NAME = "Metatable.SchemaView";
 
@@ -29,12 +29,12 @@ namespace HKG.Module.Metatable
         {
             getLogger().Trace("setup SchemaView");
 
-           route("/hkg/metatable/Schema/ImportYaml", this.handleSchemaImportYaml);
-    
-           route("/hkg/metatable/Schema/List", this.handleSchemaList);
-    
-           route("/hkg/metatable/Schema/Delete", this.handleSchemaDelete);
-    
+            route("/hkg/metatable/Schema/ImportYaml", this.handleSchemaImportYaml);
+
+            route("/hkg/metatable/Schema/List", this.handleSchemaList);
+
+            route("/hkg/metatable/Schema/Delete", this.handleSchemaDelete);
+
         }
 
         protected override void postSetup()
@@ -50,12 +50,12 @@ namespace HKG.Module.Metatable
         private void handleSchemaImportYaml(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt() == 0)
+            if (rsp._status._code.AsInt() == 0)
                 bridge.Alert("Success");
             else
                 bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt(), rsp._status._message.AsString()));
         }
-    
+
         private void handleSchemaList(Model.Status _status, object _data)
         {
             SchemaModel.SchemaStatus replayStatus = (SchemaModel.SchemaStatus)_data;
@@ -65,16 +65,16 @@ namespace HKG.Module.Metatable
                 Dictionary<string, Dictionary<string, string>> entity = new Dictionary<string, Dictionary<string, string>>();
                 foreach (var e in status.schemas)
                 {
-                    foreach (var b in e._builder)
+                    foreach (var r in e._rule)
                     {
-                        foreach (var r in b._rule)
-                        {
-                            string path = string.Format("{0}/{1}/{2}", e._name.AsString(), b._source.AsString(), r._text.AsString());
-                            entity[path] = new Dictionary<string, string>();
-                            entity[path]["field"] = r._field.AsString();
-                            entity[path]["text"] = r._text.AsString();
-                            entity[path]["element"] = r._element.AsString();
-                        }
+                        string path = string.Format("{0}/{1}", e._name.AsString(), r._name.AsString());
+                        entity[path] = new Dictionary<string, string>();
+                        entity[path]["name"] = r._name.AsString();
+                        entity[path]["field"] = r._field.AsString();
+                        entity[path]["type"] = r._type.AsString();
+                        entity[path]["element"] = r._element.AsString();
+                        entity[path]["pairKey"] = r._pair._key.AsString();
+                        entity[path]["pairValue"] = r._pair._value.AsString();
                     }
                 }
                 bridge.RefreshSchemaList(status.total, entity);
@@ -82,7 +82,7 @@ namespace HKG.Module.Metatable
             else
                 bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", replayStatus.getCode(), replayStatus.getMessage()));
         }
-    
+
         private void handleSchemaDelete(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
