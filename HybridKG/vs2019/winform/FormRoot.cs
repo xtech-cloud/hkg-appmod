@@ -19,7 +19,15 @@ namespace HKG.Module
             // 注册UI装饰
             CrossFacade facadeCross = new CrossFacade();
             framework_.getStaticPipe().RegisterFacade(CrossFacade.NAME, facadeCross);
-   
+
+            // 注册UI装饰
+            Metatable.FormatFacade facadeFormat = new Metatable.FormatFacade();
+            framework_.getStaticPipe().RegisterFacade(Metatable.FormatFacade.NAME, facadeFormat);
+            Metatable.FormatPanel panelFormat = new Metatable.FormatPanel();
+            panelFormat.facade = facadeFormat;
+            Metatable.FormatPanel.FormatUiBridge uiFormatBridge = new Metatable.FormatPanel.FormatUiBridge();
+            uiFormatBridge.panel = panelFormat;
+            facadeFormat.setUiBridge(uiFormatBridge);
 
             // 注册UI装饰
             Metatable.SourceFacade facadeSource = new Metatable.SourceFacade();

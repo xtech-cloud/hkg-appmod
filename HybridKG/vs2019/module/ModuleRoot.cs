@@ -21,6 +21,14 @@ namespace HKG.Module
             // 注册服务层
             framework_.getStaticPipe().RegisterService(CrossService.NAME, new CrossService());
 
+            // 注册数据层
+            framework_.getStaticPipe().RegisterModel(Metatable.FormatModel.NAME, new Metatable.FormatModel());
+            // 注册视图层
+            framework_.getStaticPipe().RegisterView(Metatable.FormatView.NAME, new Metatable.FormatView());
+            // 注册控制层
+            framework_.getStaticPipe().RegisterController(Metatable.FormatController.NAME, new Metatable.FormatController());
+            // 注册服务层
+            framework_.getStaticPipe().RegisterService(Metatable.FormatService.NAME, new Metatable.FormatService());
 
             // 注册数据层
             framework_.getStaticPipe().RegisterModel(Metatable.SourceModel.NAME, new Metatable.SourceModel());
@@ -63,6 +71,15 @@ namespace HKG.Module
 
         public void Cancel()
         {
+            // 注销服务层
+            framework_.getStaticPipe().CancelService(Metatable.FormatService.NAME);
+            // 注销控制层
+            framework_.getStaticPipe().CancelController(Metatable.FormatController.NAME);
+            // 注销视图层
+            framework_.getStaticPipe().CancelView(Metatable.FormatView.NAME);
+            // 注销数据层
+            framework_.getStaticPipe().CancelModel(Metatable.FormatModel.NAME);
+
             // 注销服务层
             framework_.getStaticPipe().CancelService(Metatable.SchemaService.NAME);
             // 注销控制层

@@ -709,6 +709,57 @@ namespace HKG.Module.Metatable.Proto
         }
     }//class
 
+        public class PatternEntity
+        {
+            public PatternEntity()
+            {
+                _to = new Field();
+                _from = new Field();
+
+            }
+            [JsonPropertyName("to")]
+            public Field _to {get;set;}
+            [JsonPropertyName("from")]
+            public Field _from {get;set;}
+
+        }
+    
+        public class FormatEntity
+        {
+            public FormatEntity()
+            {
+                _uuid = new Field();
+                _name = new Field();
+                _pattern = new PatternEntity[0];
+
+            }
+            [JsonPropertyName("uuid")]
+            public Field _uuid {get;set;}
+            [JsonPropertyName("name")]
+            public Field _name {get;set;}
+            [JsonPropertyName("pattern")]
+            public PatternEntity[] _pattern {get;set;}
+
+        }
+    
+        public class FormatListResponse
+        {
+            public FormatListResponse()
+            {
+                _status = new Status();
+                _total = new Field();
+                _entity = new FormatEntity[0];
+
+            }
+            [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("total")]
+            public Field _total {get;set;}
+            [JsonPropertyName("entity")]
+            public FormatEntity[] _entity {get;set;}
+
+        }
+    
         public class RuleEntity
         {
             public RuleEntity()
@@ -912,7 +963,6 @@ namespace HKG.Module.Metatable.Proto
                 _name = new Field();
                 _label = new Field();
                 _value = new Field();
-                _schema = new Field();
 
             }
             [JsonPropertyName("uuid")]
@@ -923,8 +973,6 @@ namespace HKG.Module.Metatable.Proto
             public Field _label {get;set;}
             [JsonPropertyName("value")]
             public Field _value {get;set;}
-            [JsonPropertyName("schema")]
-            public Field _schema {get;set;}
 
         }
     
