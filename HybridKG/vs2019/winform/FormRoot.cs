@@ -20,6 +20,23 @@ namespace HKG.Module
             CrossFacade facadeCross = new CrossFacade();
             framework_.getStaticPipe().RegisterFacade(CrossFacade.NAME, facadeCross);
 
+            registerMetatable(facadeCross);
+            registerCollector(facadeCross);
+            registerBuilder(facadeCross);
+        }
+
+        public void Cancel()
+        {
+            cancelMetatable();
+            cancelCollector();
+            cancelBuilder();
+
+            // 注销UI装饰
+            framework_.getStaticPipe().CancelFacade(CrossFacade.NAME);
+        }
+
+        private void registerMetatable(CrossFacade _facadeCross)
+        {
             // 注册UI装饰
             Metatable.FormatFacade facadeFormat = new Metatable.FormatFacade();
             framework_.getStaticPipe().RegisterFacade(Metatable.FormatFacade.NAME, facadeFormat);
@@ -55,22 +72,10 @@ namespace HKG.Module
             Metatable.VocabularyPanel.VocabularyUiBridge uiVocabularyBridge = new Metatable.VocabularyPanel.VocabularyUiBridge();
             uiVocabularyBridge.panel = panelVocabulary;
             facadeVocabulary.setUiBridge(uiVocabularyBridge);
-
-            // 注册UI装饰
-            Collector.DocumentFacade facadeDocument = new Collector.DocumentFacade();
-            framework_.getStaticPipe().RegisterFacade(Collector.DocumentFacade.NAME, facadeDocument);
-            Collector.DocumentPanel panelDocument = new Collector.DocumentPanel();
-            panelDocument.facade = facadeDocument;
-            panelDocument.crossFacade = facadeCross;
-            Collector.DocumentPanel.DocumentUiBridge uiDocumentBridge = new Collector.DocumentPanel.DocumentUiBridge();
-            uiDocumentBridge.panel = panelDocument;
-            facadeDocument.setUiBridge(uiDocumentBridge);
-
         }
 
-        public void Cancel()
+        private void cancelMetatable()
         {
-
             // 注销UI装饰
             framework_.getStaticPipe().CancelFacade(Metatable.SourceFacade.NAME);
 
@@ -80,10 +85,52 @@ namespace HKG.Module
             // 注销UI装饰
             framework_.getStaticPipe().CancelFacade(Metatable.VocabularyFacade.NAME);
 
+        }
+
+        private void registerCollector(CrossFacade _facadeCross)
+        {
+            // 注册UI装饰
+            Collector.DocumentFacade facadeDocument = new Collector.DocumentFacade();
+            framework_.getStaticPipe().RegisterFacade(Collector.DocumentFacade.NAME, facadeDocument);
+            Collector.DocumentPanel panelDocument = new Collector.DocumentPanel();
+            panelDocument.facade = facadeDocument;
+            panelDocument.crossFacade = _facadeCross;
+            Collector.DocumentPanel.DocumentUiBridge uiDocumentBridge = new Collector.DocumentPanel.DocumentUiBridge();
+            uiDocumentBridge.panel = panelDocument;
+            facadeDocument.setUiBridge(uiDocumentBridge);
+        }
+
+        private void cancelCollector()
+        {
+
             // 注销UI装饰
             framework_.getStaticPipe().CancelFacade(Collector.DocumentFacade.NAME);
 
         }
+
+
+        private void registerBuilder(CrossFacade _facadeCross)
+        {
+
+            // 注册UI装饰
+            Builder.DocumentFacade facadeDocument = new Builder.DocumentFacade();
+            framework_.getStaticPipe().RegisterFacade(Builder.DocumentFacade.NAME, facadeDocument);
+            Builder.DocumentPanel panelDocument = new Builder.DocumentPanel();
+            panelDocument.facade = facadeDocument;
+            panelDocument.crossFacade = _facadeCross;
+            Builder.DocumentPanel.DocumentUiBridge uiDocumentBridge = new Builder.DocumentPanel.DocumentUiBridge();
+            uiDocumentBridge.panel = panelDocument;
+            facadeDocument.setUiBridge(uiDocumentBridge);
+        }
+
+        private void cancelBuilder()
+        {
+
+            // 注销UI装饰
+            framework_.getStaticPipe().CancelFacade(Builder.DocumentFacade.NAME);
+
+        }
+
 
         private Framework framework_ = null;
     }

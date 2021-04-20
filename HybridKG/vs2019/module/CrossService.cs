@@ -16,6 +16,7 @@ namespace HKG.Module
         private Metatable.SchemaModel modelSchema = null;
         private Metatable.SourceModel modelSource = null;
         private Metatable.VocabularyModel modelVocabulary = null;
+        private Metatable.FormatModel modelFormat = null;
 
 
         protected override void preSetup()
@@ -24,6 +25,7 @@ namespace HKG.Module
             modelSchema = findModel(Metatable.SchemaModel.NAME) as Metatable.SchemaModel;
             modelSource = findModel(Metatable.SourceModel.NAME) as Metatable.SourceModel;
             modelVocabulary = findModel(Metatable.VocabularyModel.NAME) as Metatable.VocabularyModel;
+            modelFormat = findModel(Metatable.FormatModel.NAME) as Metatable.FormatModel;
         }
 
         protected override void setup()
@@ -175,6 +177,99 @@ namespace HKG.Module
                         getLogger().Error(_err.getMessage());
                     }, null);
                 }
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+        public void MergeFromMetatable(string _format)
+        {
+            Dictionary<string, Any> listParamMap = new Dictionary<string, Any>();
+            listParamMap["offset"] = Any.FromInt64(0);
+            listParamMap["count"] = Any.FromInt64(long.MaxValue);
+            post(string.Format("{0}/hkg/collector/Document/List", getConfig()["domain"].AsString()), listParamMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new Collector.FieldConverter());
+                var rspDocument = JsonSerializer.Deserialize<Collector.Proto.DocumentListResponse>(_reply, options);
+                if (0 != rspDocument._status._code.AsInt())
+                {
+                    getLogger().Error(rspDocument._status._message.AsString());
+                    return;
+                }
+
+                Dictionary<string, Dictionary<string, Any>> documents = new Dictionary<string, Dictionary<string, Any>>();
+                Dictionary<string, List<string>> texts = new Dictionary<string, List<string>>();
+
+                // 获取格式模式
+                string parrentsJson = modelFormat.GetPatternsJson(_format);
+                foreach (var eDocument in rspDocument._entity)
+                {
+                    string uuid = eDocument._name.AsString();
+                    foreach (var label in eDocument._keyword.AsStringAry())
+                    {
+                        uuid += label;
+                    }
+                    Dictionary<string, Any> doc;
+                    if (!documents.TryGetValue(uuid, out doc))
+                    {
+                        doc = new Dictionary<string, Any>();
+                        doc["name"] = eDocument._name.AsAny();
+                        doc["label"] = eDocument._keyword.AsAny();
+                        documents[uuid] = doc;
+                    }
+                    List<string> text;
+                    if (!texts.TryGetValue(uuid, out text))
+                    {
+                        text = new List<string>();
+                        texts[uuid] = text;
+                    }
+                    text.Add(eDocument._tidyText.AsString());
+                    doc["format"] = Any.FromString(parrentsJson);
+                }
+
+                List<Dictionary<string, Any>> mergeParamMaps = new List<Dictionary<string, Any>>();
+                foreach(string uuid in documents.Keys)
+                {
+                    Dictionary<string, Any> mergeParamMap = new Dictionary<string, Any>();
+                    mergeParamMap["name"] = documents[uuid]["name"];
+                    mergeParamMap["label"] = documents[uuid]["label"];
+                    mergeParamMap["format"] = Any.FromString(parrentsJson);
+                    mergeParamMap["text"] = Any.FromStringAry(texts[uuid].ToArray());
+                    mergeParamMaps.Add(mergeParamMap);
+                }
+
+                int index = 0;
+                int total = mergeParamMaps.Count;
+                foreach (var mergeParamMap in mergeParamMaps)
+                {
+                    post(string.Format("{0}/hkg/builder/Document/Merge", getConfig()["domain"].AsString()), mergeParamMap, (_reply) =>
+                    {
+                        index += 1;
+                        if (index == total)
+                            modelDocument.Broadcast("/hkg/builder/document/merge/finish", null);
+                        else
+                            modelDocument.Broadcast("/hkg/builder/document/merge/progress", ((float)index) / ((float)total));
+                        var options = new JsonSerializerOptions();
+                        options.Converters.Add(new Metatable.FieldConverter());
+                        var rspScrape = JsonSerializer.Deserialize<Collector.Proto.BlankResponse>(_reply, options);
+                        if (0 != rspScrape._status._code.AsInt())
+                        {
+                            getLogger().Error(rspScrape._status._message.AsString());
+                            return;
+                        }
+                    }, (_err) =>
+                    {
+                        index += 1;
+                        if (index == total)
+                            modelDocument.Broadcast("/hkg/builder/document/merge/finish", null);
+                        else
+                            modelDocument.Broadcast("/hkg/builder/document/merge/progress", ((float)index) / ((float)total));
+                        getLogger().Error(_err.getMessage());
+                    }, null);
+                }
+
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());

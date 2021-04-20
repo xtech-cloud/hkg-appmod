@@ -6,5 +6,6 @@ namespace HKG.Module
     {
         void OnScrapeFromMetatableSubmit();
         void OnTidyFromMetatableSubmit();
+        void OnMergeFromMetatableSubmit(string _format);
     }
 }

@@ -67,6 +67,16 @@ namespace HKG.Module
             // 注册服务层
             framework_.getStaticPipe().RegisterService(Collector.DocumentService.NAME, new Collector.DocumentService());
 
+            // 注册数据层
+            framework_.getStaticPipe().RegisterModel(Builder.DocumentModel.NAME, new Builder.DocumentModel());
+            // 注册视图层
+            framework_.getStaticPipe().RegisterView(Builder.DocumentView.NAME, new Builder.DocumentView());
+            // 注册控制层
+            framework_.getStaticPipe().RegisterController(Builder.DocumentController.NAME, new Builder.DocumentController());
+            // 注册服务层
+            framework_.getStaticPipe().RegisterService(Builder.DocumentService.NAME, new Builder.DocumentService());
+
+
         }
 
         public void Cancel()
@@ -115,6 +125,16 @@ namespace HKG.Module
             framework_.getStaticPipe().CancelView(Collector.DocumentView.NAME);
             // 注销数据层
             framework_.getStaticPipe().CancelModel(Collector.DocumentModel.NAME);
+
+            // 注销服务层
+            framework_.getStaticPipe().CancelService(Builder.DocumentService.NAME);
+            // 注销控制层
+            framework_.getStaticPipe().CancelController(Builder.DocumentController.NAME);
+            // 注销视图层
+            framework_.getStaticPipe().CancelView(Builder.DocumentView.NAME);
+            // 注销数据层
+            framework_.getStaticPipe().CancelModel(Builder.DocumentModel.NAME);
+
 
             // 注销服务层
             framework_.getStaticPipe().CancelService(CrossService.NAME);

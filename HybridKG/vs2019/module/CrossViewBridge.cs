@@ -7,6 +7,11 @@ namespace HKG.Module
         public CrossView view { get; set; }
         public CrossService service { get; set; }
 
+        public void OnMergeFromMetatableSubmit(string _format)
+        {
+            service.MergeFromMetatable(_format);
+        }
+
         public void OnScrapeFromMetatableSubmit()
         {
             service.ScrapeFromMetatable();

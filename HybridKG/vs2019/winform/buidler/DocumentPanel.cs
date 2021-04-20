@@ -1,14 +1,13 @@
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
 using System.Windows.Forms;
+using System.Collections.Generic;
 using XTC.oelMVCS;
 using System.Text.Unicode;
 using System.Text.Encodings.Web;
 
-namespace HKG.Module.Collector
+namespace HKG.Module.Builder
 {
     public partial class DocumentPanel : UserControl
     {
@@ -28,8 +27,8 @@ namespace HKG.Module.Collector
 
             public void RefreshList(long _total, object _result)
             {
-                panel.btnScrapeAll.Enabled = true;
-                panel.btnScrapeEmpty.Enabled = true;
+                panel.btnFormatAll.Enabled = true;
+                panel.btnFormatEmpty.Enabled = true;
 
                 panel.btnList.Enabled = true;
                 panel.lvDocument.Clear();
@@ -37,7 +36,7 @@ namespace HKG.Module.Collector
                 col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
                 //panel.lTotal.Text = _total.ToString();
                 var result = (Dictionary<string, string>)_result;
-                foreach(string key in result.Keys)
+                foreach (string key in result.Keys)
                 {
                     ListViewItem item = new ListViewItem();
                     item.SubItems[0].Text = key;
@@ -46,46 +45,32 @@ namespace HKG.Module.Collector
                 }
             }
 
-            public void RefreshScrapeProgress(float _value)
+            public void RefreshProgress(float _value)
             {
-                panel.pbScrape.Value = (int)(_value*100);
+                panel.pbBuild.Value = (int)(_value * 100);
             }
 
-            public void RefreshScrapeFinish()
+            public void RefreshFinish()
             {
-                panel.pbScrape.Value = 100;
-                panel.btnScrapeAll.Enabled = true;
-                panel.btnScrapeEmpty.Enabled = true;
-                panel.btnTidyAll.Enabled = true;
-                panel.btnTidyEmpty.Enabled = true;
-            }
-
-            public void RefreshTidyProgress(float _value)
-            {
-                panel.pbScrape.Value = (int)(_value * 100);
-            }
-
-            public void RefreshTidyFinish()
-            {
-                panel.pbScrape.Value = 100;
-                panel.btnTidyAll.Enabled = true;
-                panel.btnTidyEmpty.Enabled = true;
-                panel.btnScrapeAll.Enabled = true;
-                panel.btnScrapeEmpty.Enabled = true;
+                panel.pbBuild.Value = 100;
+                panel.btnFormatAll.Enabled = true;
+                panel.btnFormatEmpty.Enabled = true;
             }
 
             public void RefreshDocument(object _doc)
             {
                 Dictionary<string, string> document = (Dictionary<string, string>)_doc;
-                panel.llAddress.Text = document["address"];
-                panel.lTime.Text = document["crawledAt"];
-                panel.lLabel.Text = document["keyword"];
-                panel.wbDocument.DocumentText = document["rawText"];
-                panel.rtbTidyText.Text = prettyJson(document["tidyText"]);
+                //panel.llAddress.Text = document["address"];
+                //panel.lTime.Text = document["crawledAt"];
+                //panel.lLabel.Text = document["keyword"];
+                //panel.wbDocument.DocumentText = document["rawText"];
+                //panel.rtbTidyText.Text = prettyJson(document["tidyText"]);
             }
 
             private string prettyJson(string unPrettyJson)
             {
+                if (string.IsNullOrEmpty(unPrettyJson))
+                    return "";
                 var options = new JsonSerializerOptions()
                 {
                     WriteIndented = true
@@ -95,6 +80,14 @@ namespace HKG.Module.Collector
                 var jsonElement = JsonSerializer.Deserialize<JsonElement>(unPrettyJson);
 
                 return JsonSerializer.Serialize(jsonElement, options);
+            }
+
+            public void RefreshFormatList(object _formats)
+            {
+                List<string> formats = (List<string>) _formats;
+                panel.cbFormat.Items.Clear();
+                panel.cbFormat.Items.AddRange(formats.ToArray());
+                panel.cbFormat.SelectedIndex = 0;
             }
         }
 
@@ -113,30 +106,21 @@ namespace HKG.Module.Collector
             this.TabIndex = 0;
         }
 
-        private void btnScrapeAll_Click(object sender, EventArgs e)
+        private void btnFormatAll_Click(object sender, EventArgs e)
         {
-            this.btnScrapeAll.Enabled = false;
-            this.btnScrapeEmpty.Enabled = false;
-            this.btnTidyAll.Enabled = false;
-            this.btnTidyEmpty.Enabled = false;
+            this.btnFormatAll.Enabled = false;
+            this.btnFormatEmpty.Enabled = false;
             var bridge = crossFacade.getViewBridge() as ICrossViewBridge;
-            bridge.OnScrapeFromMetatableSubmit();
+            bridge.OnMergeFromMetatableSubmit(this.cbFormat.Text);
         }
 
-        private void btnList_Click(object sender, EventArgs e)
+        private void btnFormatEmpty_Click(object sender, EventArgs e)
         {
-            this.btnList.Enabled = false;
-            var bridge = facade.getViewBridge() as IDocumentViewBridge;
-            bridge.OnListSubmit(0, 0);
-        }
-
-        private void btnScrapeEmpty_Click(object sender, EventArgs e)
-        {
-            this.btnScrapeAll.Enabled = false;
-            this.btnScrapeEmpty.Enabled = false;
+            this.btnFormatAll.Enabled = false;
+            this.btnFormatEmpty.Enabled = false;
             MessageBox.Show("暂未实现的功能");
-            this.btnScrapeAll.Enabled = true;
-            this.btnScrapeEmpty.Enabled = true;
+            this.btnFormatAll.Enabled = true;
+            this.btnFormatEmpty.Enabled = true;
         }
 
         private void lvDocument_SelectedIndexChanged(object sender, EventArgs e)
@@ -149,23 +133,11 @@ namespace HKG.Module.Collector
             bridge.OnDocumentSelected(uuid);
         }
 
-        private void btnTidyAll_Click(object sender, EventArgs e)
+        private void btnList_Click(object sender, EventArgs e)
         {
-            this.btnScrapeAll.Enabled = false;
-            this.btnScrapeEmpty.Enabled = false;
-            this.btnTidyAll.Enabled = false;
-            this.btnTidyEmpty.Enabled = false;
-            var bridge = crossFacade.getViewBridge() as ICrossViewBridge;
-            bridge.OnTidyFromMetatableSubmit();
-        }
-
-        private void btnTidyEmpty_Click(object sender, EventArgs e)
-        {
-            this.btnTidyAll.Enabled = false;
-            this.btnTidyEmpty.Enabled = false;
-            MessageBox.Show("暂未实现的功能");
-            this.btnTidyAll.Enabled = true;
-            this.btnTidyEmpty.Enabled = true;
+            this.btnList.Enabled = false;
+            var bridge = facade.getViewBridge() as IDocumentViewBridge;
+            bridge.OnListSubmit(0, 0);
         }
     }
 }
