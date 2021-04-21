@@ -933,6 +933,8 @@ template_module_Service_cs = r"""
 using System.IO;
 using System.Net;
 using System.Text.Json;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
@@ -960,10 +962,13 @@ namespace {{org}}.Module.{{mod}}
             req.Method = _method;
             req.ContentType =
             "application/json;charset=utf-8";
-            var options = new JsonSerializerOptions();
+            var options = new JsonSerializerOptions()
+            {
+                //WriteIndented = true
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+            };
             options.Converters.Add(new AnyConverter());
-            string json = System.Text.Json.JsonSerializer.Serialize(_params, options);
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+            byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, options);
             req.ContentLength = data.Length;
             using (Stream reqStream = req.GetRequestStream())
             {
@@ -2398,7 +2403,11 @@ for service in services.keys():
 {{assign}}
             post(string.Format("{0}/{{org}}/{{mod}}/{{service}}/{{rpc}}", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
+                var options = new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+                };
                 options.Converters.Add(new FieldConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.{{rsp}}>(_reply, options);
                 {{service}}Model.{{service}}Status status = Model.Status.New<{{service}}Model.{{service}}Status>(rsp._status._code.AsInt(), rsp._status._message.AsString());

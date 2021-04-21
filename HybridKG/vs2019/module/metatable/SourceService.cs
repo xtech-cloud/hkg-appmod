@@ -4,6 +4,8 @@ using System.Net;
 using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 namespace HKG.Module.Metatable
 {
@@ -37,7 +39,11 @@ namespace HKG.Module.Metatable
 
             post(string.Format("{0}/hkg/metatable/Source/ImportYaml", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
+                var options = new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+                };
                 options.Converters.Add(new FieldConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
                 SourceModel.SourceStatus status = Model.Status.New<SourceModel.SourceStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
@@ -57,7 +63,11 @@ namespace HKG.Module.Metatable
 
             post(string.Format("{0}/hkg/metatable/Source/List", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
+                var options = new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+                };
                 options.Converters.Add(new FieldConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.SourceListResponse>(_reply, options);
                 SourceModel.SourceStatus status = Model.Status.New<SourceModel.SourceStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
@@ -79,10 +89,13 @@ namespace HKG.Module.Metatable
             req.Method = _method;
             req.ContentType =
             "application/json;charset=utf-8";
-            var options = new JsonSerializerOptions();
+            var options = new JsonSerializerOptions()
+            {
+                //WriteIndented = true
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+            };
             options.Converters.Add(new AnyConverter());
-            string json = System.Text.Json.JsonSerializer.Serialize(_params, options);
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+            byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, options);
             req.ContentLength = data.Length;
             using (Stream reqStream = req.GetRequestStream())
             {

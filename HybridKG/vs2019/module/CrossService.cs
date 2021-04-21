@@ -2,6 +2,8 @@
 using System.IO;
 using System.Net;
 using System.Text.Json;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 using System;
@@ -40,7 +42,11 @@ namespace HKG.Module
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["offset"] = Any.FromInt64(0);
             paramMap["count"] = Any.FromInt64(long.MaxValue);
-            var options = new JsonSerializerOptions();
+            var options = new JsonSerializerOptions()
+            {
+                WriteIndented = true,
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+            };
             options.Converters.Add(new Metatable.FieldConverter());
 
             post(string.Format("{0}/hkg/metatable/Vocabulary/List", getConfig()["domain"].AsString()), paramMap, (_reply) =>
@@ -123,7 +129,11 @@ namespace HKG.Module
             listParamMap["count"] = Any.FromInt64(long.MaxValue);
             post(string.Format("{0}/hkg/collector/Document/List", getConfig()["domain"].AsString()), listParamMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
+                var options = new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+                };
                 options.Converters.Add(new Collector.FieldConverter());
                 var rspDocument = JsonSerializer.Deserialize<Collector.Proto.DocumentListResponse>(_reply, options);
                 if (0 != rspDocument._status._code.AsInt())
@@ -159,7 +169,11 @@ namespace HKG.Module
                             modelDocument.Broadcast("/hkg/collector/document/tidy/finish", null);
                         else
                             modelDocument.Broadcast("/hkg/collector/document/tidy/progress", ((float)index) / ((float)total));
-                        var options = new JsonSerializerOptions();
+                        var options = new JsonSerializerOptions()
+                        {
+                            WriteIndented = true,
+                            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+                        };
                         options.Converters.Add(new Metatable.FieldConverter());
                         var rspScrape = JsonSerializer.Deserialize<Collector.Proto.BlankResponse>(_reply, options);
                         if (0 != rspScrape._status._code.AsInt())
@@ -190,7 +204,11 @@ namespace HKG.Module
             listParamMap["count"] = Any.FromInt64(long.MaxValue);
             post(string.Format("{0}/hkg/collector/Document/List", getConfig()["domain"].AsString()), listParamMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
+                var options = new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+                };
                 options.Converters.Add(new Collector.FieldConverter());
                 var rspDocument = JsonSerializer.Deserialize<Collector.Proto.DocumentListResponse>(_reply, options);
                 if (0 != rspDocument._status._code.AsInt())
@@ -251,7 +269,11 @@ namespace HKG.Module
                             modelDocument.Broadcast("/hkg/builder/document/merge/finish", null);
                         else
                             modelDocument.Broadcast("/hkg/builder/document/merge/progress", ((float)index) / ((float)total));
-                        var options = new JsonSerializerOptions();
+                        var options = new JsonSerializerOptions()
+                        {
+                            WriteIndented = true,
+                            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+                        };
                         options.Converters.Add(new Metatable.FieldConverter());
                         var rspScrape = JsonSerializer.Deserialize<Collector.Proto.BlankResponse>(_reply, options);
                         if (0 != rspScrape._status._code.AsInt())
@@ -287,10 +309,13 @@ namespace HKG.Module
                 req.Method = _method;
                 req.ContentType =
                 "application/json;charset=utf-8";
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new Metatable.AnyConverter());
-                string json = System.Text.Json.JsonSerializer.Serialize(_params, options);
-                byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+                var options = new JsonSerializerOptions()
+                {
+                    //WriteIndented = true
+                    Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+                };
+                options.Converters.Add(new AnyConverter());
+                byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, options);
                 req.ContentLength = data.Length;
                 using (Stream reqStream = req.GetRequestStream())
                 {
