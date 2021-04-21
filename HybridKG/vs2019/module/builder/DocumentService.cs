@@ -66,7 +66,10 @@ namespace HKG.Module.Builder
                 options.Converters.Add(new FieldConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.DocumentListResponse>(_reply, options);
                 DocumentModel.DocumentStatus status = Model.Status.New<DocumentModel.DocumentStatus>(rsp._status._code.AsInt(), rsp._status._message.AsString());
-                model.Broadcast("/hkg/builder/Document/List", rsp);
+                status.documents = new List<Proto.DocumentEntity>(rsp._entity);
+                status.total = rsp._total.AsLong();
+                model.SaveDocuments(status);
+                model.Broadcast("/hkg/builder/Document/List", status);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());

@@ -60,11 +60,13 @@ namespace HKG.Module.Builder
             public void RefreshDocument(object _doc)
             {
                 Dictionary<string, string> document = (Dictionary<string, string>)_doc;
-                //panel.llAddress.Text = document["address"];
-                //panel.lTime.Text = document["crawledAt"];
-                //panel.lLabel.Text = document["keyword"];
-                //panel.wbDocument.DocumentText = document["rawText"];
-                //panel.rtbTidyText.Text = prettyJson(document["tidyText"]);
+                string html = HtmlTemplate.RenderTable(document["text"], (_ex) =>
+                {
+                });
+                panel.lTime.Text = document["updatedAt"];
+                panel.lLabel.Text = document["label"];
+                panel.wbDocument.DocumentText = html;
+                panel.rtbText.Text = prettyJson(document["text"]);
             }
 
             private string prettyJson(string unPrettyJson)
@@ -137,7 +139,7 @@ namespace HKG.Module.Builder
         {
             this.btnList.Enabled = false;
             var bridge = facade.getViewBridge() as IDocumentViewBridge;
-            bridge.OnListSubmit(0, 0);
+            bridge.OnListSubmit(0, int.MaxValue);
         }
     }
 }
