@@ -1,0 +1,107 @@
+<UserControl x:Class="hkg.collector.DocumentControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:hkg.collector"
+             mc:Ignorable="d" 
+             DataContext="{Binding RelativeSource={RelativeSource self}}"
+             d:DesignHeight="800" d:DesignWidth="1920">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
+                <ResourceDictionary Source="Resources/Themes/Theme.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="TagCustomStyle" BasedOn="{StaticResource TagBaseStyle}" TargetType="hc:Tag">
+                <Setter Property="Content" Value="{Binding Name}"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Left" Style="{StaticResource BorderRegion}" Width="260" Effect="{StaticResource EffectShadow1}">
+            <StackPanel Margin="24">
+                <TextBlock HorizontalAlignment="Left" Margin="0 6 0 0" Text="存储位置" Style="{StaticResource TextBlockSubTitle}"/>
+                <RadioButton Margin="0, 12, 0, 0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="公有云" Checked="onPublicChecked"/>
+                <RadioButton Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content=" 私有云" Checked="onPrivateChecked"/>
+                <RadioButton Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="本地" IsEnabled="False" Checked="onLocalChecked"/>
+                <Button Content="采集" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onScrapeClick"/>
+            </StackPanel>
+        </Border>
+        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}" Margin="16 0 0 0">
+            <DockPanel>
+                <DockPanel Margin="20" DockPanel.Dock="Left" Width="500">
+                    <hc:SimplePanel DockPanel.Dock="Top">
+                        <TextBlock Text="文档列表" Style="{StaticResource TextBlockSubTitle}" HorizontalAlignment="Left"  />
+                    </hc:SimplePanel>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <hc:Pagination MaxPageCount="10" PageIndex="{Binding PageIndex}" IsJumpEnabled="False" Grid.Row="0">
+                            <hc:Interaction.Triggers>
+                                <hc:EventTrigger EventName="PageUpdated">
+                                    <hc:EventToCommand Command="{Binding PageUpdatedCmd}" PassEventArgsToCommand="True" />
+                                </hc:EventTrigger>
+                            </hc:Interaction.Triggers>
+                        </hc:Pagination>
+                        <DataGrid Name="dgDocument" IsReadOnly="True" Margin="0,16,0,0" Grid.Row="1" HeadersVisibility="Column" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding DocumentList}" SelectionChanged="onDocumentSelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn IsReadOnly="True" CanUserResize="True" Binding="{Binding Name}" Header="名称"/>
+                                <DataGridTextColumn IsReadOnly="True" Width="100" CanUserResize="True" Binding="{Binding Source}" Header="来源"/>
+                                <DataGridCheckBoxColumn Width="60" CanUserResize="False" Binding="{Binding IsScrape}" Header="采集"/>
+                                <DataGridCheckBoxColumn Width="60" CanUserResize="False" Binding="{Binding IsTidy}" Header="结构化"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Button Content="结构化" Margin="0,8,0,0" Grid.Row="2" HorizontalAlignment="Stretch" Click="onTidyClick"/>
+                    </Grid>
+                </DockPanel>
+                <hc:Divider DockPanel.Dock="Left" Orientation="Vertical"/>
+                <hc:SimplePanel>
+                    <DockPanel Name="pageDetail"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="80">
+                        <Border Style="{StaticResource BorderTipSuccess}" Margin="0,16,0,0" DockPanel.Dock="Top">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="公共" Style="{StaticResource TextBlockSubTitle}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Border>
+                        <TextBox Name="txtUUID" hc:InfoElement.Title="UUID" Style="{StaticResource TextBoxExtend}" Margin="0,16,0,0" IsReadOnly="True" DockPanel.Dock="Top"/>
+                        <Border Style="{StaticResource BorderTipSuccess}" Margin="0,16,0,0" DockPanel.Dock="Top">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="信息" Style="{StaticResource TextBlockSubTitle}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Border>
+                        <TextBox Name="txtCrawledAt" hc:InfoElement.Title="采集时间" Style="{StaticResource TextBoxExtend}" Margin="0,16,0,0" IsReadOnly="True" DockPanel.Dock="Top"/>
+                        <TextBox Name="txtAddress" hc:InfoElement.Title="采集地址" Style="{StaticResource TextBoxExtend}" Margin="0,8,0,0" IsReadOnly="True" DockPanel.Dock="Top"/>
+                        <TextBox Name="txtKeyword" hc:InfoElement.Title="采集标签" Style="{StaticResource TextBoxExtend}" Margin="0,8,0,0" IsReadOnly="True" DockPanel.Dock="Top"/>
+                        <TabControl Name="tabInfo" Margin="0 24, 0, 0" Style="{StaticResource TabControlInLine}" HorizontalAlignment="Left">
+                            <TabItem Header="结构化文本格式">
+                                <RichTextBox Name="rtbTidy" Margin="24" IsReadOnly="True"></RichTextBox>
+                            </TabItem>
+                            <TabItem Header="来源原文格式">
+                                <WebBrowser Name="wbRaw" Margin="24"></WebBrowser>
+                            </TabItem>
+                        </TabControl>
+                    </DockPanel>
+                    <hc:Drawer Name="drawerScrape" MaskCanClose="True" Dock="Right" ShowMode="Cover">
+                        <Border Background="{StaticResource RegionBrush}" Width="600" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderBrush}">
+                            <StackPanel Margin="24">
+                                <Button Content="开始采集" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onStartScrapeClick"/>
+                                <ComboBox Name="cbSource"  hc:InfoElement.TitleWidth="80" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="来源表" Style="{StaticResource ComboBoxExtend}" Margin="0,8,0,0"/>
+                                <ComboBox Name="cbVocabulary" hc:InfoElement.TitleWidth="80" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="词汇表" Style="{StaticResource ComboBoxExtend}" Margin="0,16,0,0" SelectionChanged="onVocabularySelectionChanged"/>
+                                <ListBox Name="lbVocabulary" SelectionMode="Extended" ></ListBox>
+                            </StackPanel>
+                        </Border>
+                    </hc:Drawer>
+                </hc:SimplePanel>
+            </DockPanel>
+        </Border>
+    </DockPanel>
+
+</UserControl>

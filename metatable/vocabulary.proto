@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "proto/metatable/shared.proto";
+
+package metatable;
+
+// 词汇实体
+message VocabularyEntity
+{
+    string uuid = 1;           // 唯一识别码
+    string name = 2;           // 名称
+    repeated string label = 3; // 标签
+    repeated string value = 4; // 值
+}
+
+// 词汇
+service Vocabulary
+{
+    // 导入YAML
+    rpc ImportYaml(ImportYamlRequest) returns (BlankResponse) {}
+    // 列举
+    rpc List(ListRequest) returns (VocabularyListResponse) {}
+    // 查找
+    rpc Find(FindRequest) returns (VocabularyFindResponse) {}
+    // 删除
+    rpc Delete(DeleteRequest) returns (BlankResponse) {}
+}
+
+message VocabularyListResponse
+{
+    Status status = 1;                    // 状态
+    int64 total = 2;                      // 实体总数
+    repeated VocabularyEntity entity = 3; // 实体列表
+}
+
+message VocabularyFindResponse
+{
+    Status status = 1;                    // 状态
+    repeated VocabularyEntity entity = 2; // 实体列表
+}

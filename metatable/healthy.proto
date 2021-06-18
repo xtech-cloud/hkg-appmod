@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package metatable;
+
+// 健康
+service Healthy
+{
+    // 回显
+    rpc Echo(EchoRequest) returns (EchoResponse) {}
+}
+
+// 回显的请求
+message EchoRequest
+{
+    string msg = 1;
+}
+
+// 回显的回复
+message EchoResponse
+{
+    string msg = 1;
+}

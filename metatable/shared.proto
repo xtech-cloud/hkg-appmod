@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package metatable;
+
+// 状态
+message Status
+{
+    int32 code = 1;     // 状态码
+    string message = 2; // 状态信息
+}
+
+// 键值对实体
+message PairEntity
+{
+    string key = 1;   // 键
+    string value = 2; // 值
+}
+
+// 空白回复
+message BlankResponse
+{
+    Status status = 1; // 状态
+}
+
+// 导入YAML的请求
+message ImportYamlRequest
+{
+    string content = 1; // 内容
+}
+
+// 列举的请求
+message ListRequest
+{
+    int64 offset = 1; // 偏移值
+    int64 count = 2;  // 数量
+}
+
+// 查找的请求
+message FindRequest
+{
+    string name = 1; // 名称
+}
+
+// 删除的请求
+message DeleteRequest
+{
+    string uuid = 1; // 唯一识别码
+}

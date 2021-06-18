@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package collector;
+
+// 状态
+message Status
+{
+    int32 code = 1;     // 状态码
+    string message = 2; // 状态信息
+}
+
+// 空白回复
+message BlankResponse
+{
+    Status status = 1; // 状态
+}
+
+// 文档实体
+message DocumentEntity
+{
+    string uuid = 1;
+    string name = 2;             // 名称
+    repeated string keyword = 3; // 关键字
+    string address = 4;          // 地址
+    string rawText = 5;          // 原始文本
+    string tidyText = 6;         // 结构化文本
+    int64 crawledAt = 7;         // 获取时间
+}
+
+// 列举的请求
+message ListRequest
+{
+    int64 offset = 1; // 偏移值
+    int64 count = 2;  // 数量
+}

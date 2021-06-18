@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+import "proto/metatable/shared.proto";
+
+package metatable;
+
+// 模式实体
+message PatternEntity
+{
+    string to = 1;            // 属性的输出
+    repeated string from = 2; // 属性的输入
+}
+
+// 格式实体
+message FormatEntity
+{
+    string uuid = 1;                    // 唯一识别码
+    string name = 2;                    // 名称
+    repeated PatternEntity pattern = 3; // 合并模式
+}
+
+// 格式
+service Format
+{
+    // 导入YAML
+    rpc ImportYaml(ImportYamlRequest) returns (BlankResponse) {}
+    // 列举
+    rpc List(ListRequest) returns (FormatListResponse) {}
+    // 删除
+    rpc Delete(DeleteRequest) returns (BlankResponse) {}
+}
+
+message FormatListResponse
+{
+    Status status = 1;                // 状态
+    int64 total = 2;                  // 实体总数
+    repeated FormatEntity entity = 3; // 实体列表
+}

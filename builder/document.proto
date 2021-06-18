@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "proto/builder/shared.proto";
+
+package builder;
+
+// 文档
+service Document
+{
+    // 合并文本
+    rpc Merge(DocumentMergeRequest) returns (BlankResponse) { }
+    // 列举
+    rpc List(ListRequest) returns (DocumentListResponse) { }
+}
+
+// 文档合并的请求
+message DocumentMergeRequest
+{
+    string name = 1;           // 文档名
+    repeated string label = 2; // 标签
+    repeated string text = 3;  // json格式文本
+    string format = 4;         // 格式
+}
+
+message DocumentListResponse
+{
+    Status status = 1;                  // 状态
+    int64 total = 2;                    // 实体总数
+    repeated DocumentEntity entity = 3; // 实体列表
+}

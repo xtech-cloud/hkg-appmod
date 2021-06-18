@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "app": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOMAIN_PRIVATE": "http://localhost:8080"
+      }
+    }
+  }
+}

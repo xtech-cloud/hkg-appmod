@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+import "proto/metatable/shared.proto";
+
+package metatable;
+
+// 规则实体
+message RuleEntity
+{
+    string name = 1;     // 名称
+    string field = 2;    // 字段
+    string type = 3;     // 类型，可选值为[text, ary, map]
+    string element = 4;  // 原始文本中的标签
+    PairEntity pair = 5; // type=map时的键和值
+}
+
+// 结构实体
+message SchemaEntity
+{
+    string uuid = 1;              // 唯一识别码
+    string name = 2;              // 结构名称
+    repeated RuleEntity rule = 3; // 规则列表
+}
+
+// 来源
+service Schema
+{
+    // 导入YAML
+    rpc ImportYaml(ImportYamlRequest) returns (BlankResponse) {}
+    // 列举
+    rpc List(ListRequest) returns (SchemaListResponse) {}
+    // 删除
+    rpc Delete(DeleteRequest) returns (BlankResponse) {}
+}
+
+message SchemaListResponse
+{
+    Status status = 1;                // 状态
+    int64 total = 2;                  // 实体总数
+    repeated SchemaEntity entity = 3; // 实体列表
+}

@@ -1,0 +1,85 @@
+<UserControl x:Class="hkg.metatable.VocabularyControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:hkg.metatable"
+             mc:Ignorable="d" 
+             DataContext="{Binding RelativeSource={RelativeSource self}}"
+             d:DesignHeight="1920" d:DesignWidth="1920">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
+                <ResourceDictionary Source="Resources/Themes/Theme.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="TagCustomStyle" BasedOn="{StaticResource TagBaseStyle}" TargetType="hc:Tag">
+                <Setter Property="Content" Value="{Binding Name}"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Left" Style="{StaticResource BorderRegion}" Width="260" Effect="{StaticResource EffectShadow1}">
+            <StackPanel Margin="24">
+                <TextBlock HorizontalAlignment="Left" Margin="0 6 0 0" Text="存储位置" Style="{StaticResource TextBlockSubTitle}"/>
+                <RadioButton Margin="0, 12, 0, 0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="公有云" Checked="onPublicChecked"/>
+                <RadioButton Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content=" 私有云" Checked="onPrivateChecked"/>
+                <RadioButton Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="本地" IsEnabled="False" Checked="onLocalChecked"/>
+            </StackPanel>
+        </Border>
+        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}" Margin="16 0 0 0">
+            <DockPanel>
+                <DockPanel Margin="20" DockPanel.Dock="Left" Width="300">
+                    <hc:SimplePanel DockPanel.Dock="Top">
+                        <TextBlock Text="格式表列表" Style="{StaticResource TextBlockSubTitle}" HorizontalAlignment="Left"  />
+                    </hc:SimplePanel>
+                    <hc:SimplePanel DockPanel.Dock="Top" Margin="0,12,0,0">
+                        <Button Name="btnAddVocabulary" Padding="7" Margin="0,0,0,0" Style="{StaticResource ButtonIconCircular}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource AddGeometry}" HorizontalAlignment="Left" />
+                        <Button Name="btnImportVocabulary" Padding="6" Margin="40,0,0,0" Style="{StaticResource ButtonIconCircular}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource ImportGeometry}" HorizontalAlignment="Left" Click="onImportVocabularyClick"/>
+                        <Button Name="btnExportVocabulary" Padding="6" Margin="0,0,0,0" Style="{StaticResource ButtonIconCircular}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource ExportGeometry}" HorizontalAlignment="Right"/>
+                        <Button Name="btnDeleteVocabulary" Padding="7" Margin="0,0,40,0" Style="{StaticResource ButtonIconCircular}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource TrashGeometry}" HorizontalAlignment="Right" Click="onDeleteVocabularyClick"/>
+                        <Button Name="btnRenameVocabulary" Padding="7" Margin="0,0,80,0" Style="{StaticResource ButtonIconCircular}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource EditGeometry}" HorizontalAlignment="Right" />
+                    </hc:SimplePanel>
+                    <hc:SimplePanel Name="spRenameVocabulary" DockPanel.Dock="Top" Margin="0,12,0,0" Visibility="Visible" >
+                        <TextBox Name="tbVocabularyName" hc:InfoElement.Placeholder="输入新名称" Style="{StaticResource TextBoxExtend}" Margin="0,0,120,0"/>
+                        <Button Content="取消"  Width="50" Style="{StaticResource ButtonInfo}" HorizontalAlignment="Right" />
+                        <Button Content="确定"  Width="50" Margin="0,0,55,0" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" />
+                    </hc:SimplePanel>
+                    <StackPanel DockPanel.Dock="Top" hc:Growl.Token="VolumeMessageBox" VerticalAlignment="Top" Margin="0,12,0,0"/>
+                    <ListBox Name="lbVocabulary" Background="White" BorderThickness="0" Margin="0 16 0 0" SelectionChanged="onVocabularySelectionChanged">
+                    </ListBox>
+                </DockPanel>
+                <hc:Divider DockPanel.Dock="Left" Orientation="Vertical"/>
+                <DockPanel>
+                    <StackPanel Name ="pageDetail" Margin="12" hc:InfoElement.TitleWidth="60" hc:InfoElement.TitlePlacement="Left" >
+                        <Border Style="{StaticResource BorderTipSuccess}" Margin="0,16,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="公共" Style="{StaticResource TextBlockSubTitle}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Border>
+                        <TextBox Name="txtUUID" hc:InfoElement.Title="UUID" Style="{StaticResource TextBoxExtend}" Margin="0,16,0,0" IsReadOnly="True"/>
+                        <Border Style="{StaticResource BorderTipSuccess}" Margin="0,16,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="标签" Style="{StaticResource TextBlockSubTitle}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Border>
+                        <hc:TagContainer ItemContainerStyle="{StaticResource TagCustomStyle}" BorderThickness="0" Padding="5" ItemsSource="{Binding LabelList}"/>
+                        <Border Style="{StaticResource BorderTipSuccess}" Margin="0,16,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="实体" Style="{StaticResource TextBlockSubTitle}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Border>
+                        <hc:SearchBar hc:TitleElement.TitleWidth="0" Margin="0,16,0,0" Name="sbValue" ShowClearButton="True" Style="{StaticResource SearchBarPlus}" SearchStarted="onSearchValueStarted" IsRealTime="True"/>
+                        <hc:TagContainer ItemContainerStyle="{StaticResource TagCustomStyle}" BorderThickness="0" Padding="5" ItemsSource="{Binding ValueList}"/>
+                    </StackPanel>
+                </DockPanel>
+            </DockPanel>
+        </Border>
+    </DockPanel>
+
+</UserControl>

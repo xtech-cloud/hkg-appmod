@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "proto/collector/shared.proto";
+
+package collector;
+
+// 文档
+service Document
+{
+    // 抓取
+    rpc Scrape(DocumentScrapeRequest) returns (BlankResponse) {}
+    // 列举
+    rpc List(ListRequest) returns (DocumentListResponse) {}
+    // 整理
+    rpc Tidy(DocumentTidyRequest) returns (BlankResponse) {}
+}
+
+// 文档抓取的请求
+message DocumentScrapeRequest
+{
+    string name = 1;             // 文档名(也是爬取时的检索名字)
+    repeated string keyword = 2; // 关键字
+    string address = 3;          // 抓取地址
+    string attribute = 4;        // 抓取属性
+}
+
+// 文档整理的请求
+message DocumentTidyRequest
+{
+    string uuid = 1;              // 文档唯一识别码
+    string host = 2;              // 采集地址
+    map<string, string> rule = 3; // 规则, key时原始文本中的标签，value是结构化后的字段
+}
+
+message DocumentListResponse
+{
+    Status status = 1;                  // 状态
+    int64 total = 2;                    // 实体总数
+    repeated DocumentEntity entity = 3; // 实体列表
+}
