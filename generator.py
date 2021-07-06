@@ -75,7 +75,7 @@ template_proj_app = r"""
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="oelMVCS" Version="1.3.0" />
+    <PackageReference Include="oelMVCS" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -95,7 +95,7 @@ template_proj_bridge = r"""
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="oelMVCS" Version="1.3.0" />
+    <PackageReference Include="oelMVCS" Version="1.4.0" />
   </ItemGroup>
 
 </Project>
@@ -114,7 +114,7 @@ template_proj_module = r"""
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="oelMVCS" Version="1.3.0" />
+    <PackageReference Include="oelMVCS" Version="1.4.0" />
   </ItemGroup>
 
 </Project>
@@ -135,7 +135,7 @@ template_proj_wpf = r"""
 
   <ItemGroup>
     <PackageReference Include="HandyControl" Version="3.1.0" />
-    <PackageReference Include="oelMVCS" Version="1.3.0" />
+    <PackageReference Include="oelMVCS" Version="1.4.0" />
   </ItemGroup>
 
 </Project>
