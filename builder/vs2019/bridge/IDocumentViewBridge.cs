@@ -6,6 +6,7 @@ namespace hkg.builder
     {
         void OnMergeSubmit(string _name, string[] _label, string[] _text, string _format);
         void OnListSubmit(long _offset, long _count);
+        void OnBatchDeleteSubmit(string[] _uuid);
 
         void OnLocationChanged(string _location);
         void OnGetSubmit(string _uuid);

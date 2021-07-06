@@ -29,6 +29,7 @@ namespace hkg.metatable
 
             public void Alert(string _message)
             {
+                HandyControl.Controls.Growl.Warning(_message, "StatusGrowl");
             }
 
             public void RefreshList(List<Dictionary<string, string>> _list)
@@ -63,7 +64,7 @@ namespace hkg.metatable
                     foreach(var v in from.Split(","))
                     {
                         FromTag tag = new FromTag();
-                        tag.Name = v;
+                        tag.Name = v.Remove(v.Length-1, 1).Remove(0,1);
                         tag.IsSelected = true;
                         p.From.Add(tag);
                     }

@@ -38,8 +38,8 @@ namespace hkg.collector
                 count = Any.FromInt64(int.MaxValue);
 
             Proto.ListRequest req = new Proto.ListRequest();
-            req._offset = Proto.Field.FromLong(offset.AsInt64());
-            req._count = Proto.Field.FromLong(count.AsInt64());
+            req._offset = Any.FromInt64(offset.AsInt64());
+            req._count = Any.FromInt64(count.AsInt64());
 
             service.PostDocumentList(domain.AsString(), req, (_reply)=>
             {

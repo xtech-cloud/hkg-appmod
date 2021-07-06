@@ -28,6 +28,7 @@ namespace hkg.metatable
 
             public void Alert(string _message)
             {
+                HandyControl.Controls.Growl.Warning(_message, "StatusGrowl");
             }
 
             public void RefreshList(List<Dictionary<string, string>> _list)

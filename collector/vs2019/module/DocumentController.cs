@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using XTC.oelMVCS;
 
 namespace hkg.collector
@@ -60,6 +61,21 @@ namespace hkg.collector
         public void TidyFinish(Model.Status _reply, string _uuid)
         {
             view.RefreshTidyFinish(_reply.getCode(), _reply.getMessage(), _uuid);
+        }
+
+        public void Delete(Model.Status _reply, DocumentModel.DocumentStatus _status, List<string> _uuid)
+        {
+            if (_reply.getCode() != 0)
+            {
+                view.Alert(_reply.getMessage());
+                return;
+            }
+
+            _status.document.RemoveAll((_item) =>
+            {
+                return _uuid.Contains(_item.entity._uuid.AsString());
+            });
+            view.RefreshRemovedDocument(_uuid);
         }
     }
 }

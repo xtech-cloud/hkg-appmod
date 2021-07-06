@@ -61,7 +61,7 @@ namespace hkg.collector
                 param["address"] = v.entity._address.AsString();
                 param["rawText"] = v.entity._rawText.AsString();
                 param["tidyText"] = v.entity._tidyText.AsString();
-                long timestamp = v.entity._crawledAt.AsLong();
+                long timestamp = v.entity._crawledAt.AsInt64();
                 DateTimeOffset dto = DateTimeOffset.FromUnixTimeSeconds(timestamp);
                 param["crawledAt"] = dto.LocalDateTime.ToString();
                 list.Add(param);
@@ -90,6 +90,11 @@ namespace hkg.collector
         public void RefreshTidyFinish(int _code, string _message, string _uuid)
         {
             bridge.RefreshTidyFinish(_code, _message, _uuid);
+        }
+
+        public void RefreshRemovedDocument(List<string> _uuid)
+        {
+            bridge.RefreshRemovedDocument(_uuid);
         }
 
 
@@ -156,8 +161,8 @@ namespace hkg.collector
                 {
                     Dictionary<string, string> p = new Dictionary<string, string>();
                     p["name"] = e.name;
-                    p["label"] = Proto.Field.FromStringAry(e.label).AsString();
-                    p["value"] = Proto.Field.FromStringAry(e.value).AsString();
+                    p["label"] = Any.FromStringAry(e.label).AsString();
+                    p["value"] = Any.FromStringAry(e.value).AsString();
                     list.Add(p);
                 }
             }

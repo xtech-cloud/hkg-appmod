@@ -50,6 +50,9 @@ namespace hkg.collector
             public void RefreshList(long _total, List<Dictionary<string, string>> _list)
             {
                 control.DocumentList.Clear();
+                control.TotalDocumentList.Clear();
+                control.piDocument.MaxPageCount = _list.Count == 0 ? 1 : _list.Count / control.piDocument.DataCountPerPage;
+
                 foreach (var v in _list)
                 {
                     Document doc = new Document();
@@ -62,7 +65,7 @@ namespace hkg.collector
                     doc.IsScrape = !string.IsNullOrEmpty(doc.RawText);
                     doc.IsTidy = !string.IsNullOrEmpty(doc.TidyText);
                     doc.CrawledAt = v["crawledAt"];
-                    control.DocumentList.Add(doc);
+                    control.TotalDocumentList.Add(doc);
                     doc.Source = doc.Address;
                     foreach (var source in control.source)
                     {
@@ -75,6 +78,17 @@ namespace hkg.collector
                                 break;
                             }
                         }
+                    }
+                }
+
+                if (_list.Count > 0)
+                {
+                    if (_list.Count % control.piDocument.DataCountPerPage != 0)
+                        control.piDocument.MaxPageCount += 1;
+                    control.piDocument.PageIndex = 1;
+                    for (int i = 0; i < control.piDocument.DataCountPerPage && i < control.TotalDocumentList.Count; ++i)
+                    {
+                        control.DocumentList.Add(control.TotalDocumentList[i]);
                     }
                 }
             }
@@ -164,11 +178,30 @@ namespace hkg.collector
                 }
 
             }
+
+            public void RefreshRemovedDocument(List<string> _uuid)
+            {
+                control.TotalDocumentList.RemoveAll((_item) =>
+                {
+                    return _uuid.Contains(_item.UUID);
+                });
+                List<Document> found = new List<Document>();
+                foreach(var doc in control.DocumentList)
+                {
+                    if (_uuid.Contains(doc.UUID))
+                        found.Add(doc);
+                }
+                foreach(var doc in found)
+                {
+                    control.DocumentList.Remove(doc);
+                }
+            }
         }
 
         public DocumentFacade facade { get; set; }
 
         public ObservableCollection<Document> DocumentList { get; set; }
+        public List<Document> TotalDocumentList { get; set; }
         private List<Dictionary<string, string>> source = new List<Dictionary<string, string>>();
         private List<Dictionary<string, string>> vocabulary = new List<Dictionary<string, string>>();
         private List<Dictionary<string, string>> schema = new List<Dictionary<string, string>>();
@@ -177,6 +210,7 @@ namespace hkg.collector
         public DocumentControl()
         {
             DocumentList = new ObservableCollection<Document>();
+            TotalDocumentList = new List<Document>();
             InitializeComponent();
         }
         private void onPublicChecked(object sender, System.Windows.RoutedEventArgs e)
@@ -334,6 +368,41 @@ namespace hkg.collector
 
                 bridge.OnTidySubmit(doc.UUID, host, r);
             }
+        }
+
+        private void onDocumentPageUpdated(object sender, HandyControl.Data.FunctionEventArgs<int> e)
+        {
+            int offset = (piDocument.PageIndex - 1) * piDocument.DataCountPerPage;
+            int count = piDocument.DataCountPerPage;
+
+            DocumentList.Clear();
+            for (int i = offset; i < count + offset && i < TotalDocumentList.Count; ++i)
+            {
+                DocumentList.Add(TotalDocumentList[i]);
+            }
+        }
+
+        private void onDocumentSearchStarted(object sender, HandyControl.Data.FunctionEventArgs<string> e)
+        {
+            if (string.IsNullOrEmpty(sbDocument.Text))
+                return;
+            var bridge = facade.getViewBridge() as IDocumentViewBridge;
+            Dictionary<string, string> filter = new Dictionary<string, string>();
+            filter["name"] = sbDocument.Text;
+            bridge.OnListSubmit(0, int.MaxValue, filter);
+        }
+
+        private void onDeleteClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var bridge = facade.getViewBridge() as IDocumentViewBridge;
+
+            List<string> uuid = new List<string>();
+            foreach (var item in dgDocument.SelectedItems)
+            {
+                var doc = item as Document;
+                uuid.Add(doc.UUID);
+            }
+            bridge.OnBatchDeleteSubmit(uuid.ToArray());
         }
     }
 }

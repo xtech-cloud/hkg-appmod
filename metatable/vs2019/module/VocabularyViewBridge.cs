@@ -11,7 +11,7 @@ namespace hkg.metatable
         public void OnImportYamlSubmit(string _content)
         {
             Proto.ImportYamlRequest req = new Proto.ImportYamlRequest();
-            req._content = Proto.Field.FromString(_content);
+            req._content = Any.FromString(_content);
 
             service.PostImportYaml(req);
         }
@@ -20,8 +20,8 @@ namespace hkg.metatable
         public void OnListSubmit(long _offset, long _count)
         {
             Proto.ListRequest req = new Proto.ListRequest();
-            req._offset = Proto.Field.FromLong(_offset);
-            req._count = Proto.Field.FromLong(_count);
+            req._offset = Any.FromInt64(_offset);
+            req._count = Any.FromInt64(_count);
 
             service.PostList(req);
         }
@@ -30,7 +30,7 @@ namespace hkg.metatable
         public void OnFindSubmit(string _name)
         {
             Proto.FindRequest req = new Proto.FindRequest();
-            req._name = Proto.Field.FromString(_name);
+            req._name = Any.FromString(_name);
 
             service.PostFind(req);
         }
@@ -39,7 +39,7 @@ namespace hkg.metatable
         public void OnDeleteSubmit(string _uuid)
         {
             Proto.DeleteRequest req = new Proto.DeleteRequest();
-            req._uuid = Proto.Field.FromString(_uuid);
+            req._uuid = Any.FromString(_uuid);
 
             service.PostDelete(req);
         }
@@ -50,8 +50,8 @@ namespace hkg.metatable
             service.SwitchLocation(_location);
 
             Proto.ListRequest req = new Proto.ListRequest();
-            req._offset = Proto.Field.FromLong(0);
-            req._count = Proto.Field.FromLong(int.MaxValue);
+            req._offset = Any.FromInt64(0);
+            req._count = Any.FromInt64(int.MaxValue);
             service.PostList(req);
         }
 

@@ -19,14 +19,14 @@ namespace hkg.builder
             public List<Document> document = new List<Document>();
         }
 
-        private DocumentController controller {get;set;}
+        private DocumentController controller { get; set; }
 
         protected override void preSetup()
         {
             controller = findController(DocumentController.NAME) as DocumentController;
             Error err;
             status_ = spawnStatus<DocumentStatus>(DocumentStatus.NAME, out err);
-            if(0 != err.getCode())
+            if (0 != err.getCode())
             {
                 getLogger().Error(err.getMessage());
             }
@@ -41,7 +41,7 @@ namespace hkg.builder
         {
             Error err;
             killStatus(DocumentStatus.NAME, out err);
-            if(0 != err.getCode())
+            if (0 != err.getCode())
             {
                 getLogger().Error(err.getMessage());
             }
@@ -58,6 +58,11 @@ namespace hkg.builder
         public void UpdateList(Model.Status _reply, long _total, Proto.DocumentEntity[] _list)
         {
             controller.List(_reply, status, _total, _list);
+        }
+
+        public void UpdateDelete(Model.Status _reply, List<string> _uuid)
+        {
+            controller.Delete(_reply, status, _uuid);
         }
     }
 }

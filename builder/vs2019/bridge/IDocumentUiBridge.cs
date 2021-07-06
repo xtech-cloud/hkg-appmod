@@ -8,6 +8,7 @@ namespace hkg.builder
         object getRootPanel();
         void Alert(string _message);
         void RefreshList(long _total, List<Dictionary<string, string>> _document);
+        void RefreshRemovedDocument(List<string> _uuid);
 
         void RefreshQueryCollectorDocumentList(List<Dictionary<string, string>> _list);
         void RefreshQueryMetatableFormatList(List<Dictionary<string, string>> _list);

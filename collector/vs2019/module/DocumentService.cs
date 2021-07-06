@@ -30,17 +30,17 @@ namespace hkg.collector
         public void PostScrape(Proto.DocumentScrapeRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["name"] = _request._name.AsAny();
-            paramMap["keyword"] = _request._keyword.AsAny();
-            paramMap["address"] = _request._address.AsAny();
-            paramMap["attribute"] = _request._attribute.AsAny();
+            paramMap["name"] = _request._name;
+            paramMap["keyword"] = _request._keyword;
+            paramMap["address"] = _request._address;
+            paramMap["attribute"] = _request._attribute;
 
             post(string.Format("{0}/hkg/collector/Document/Scrape", domain), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
-                options.Converters.Add(new FieldConverter());
+                options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
-                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt(), rsp._status._message.AsString());
+                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
                 model.UpdateScrapeFinish(reply, paramMap["name"].AsString(), paramMap["address"].AsString());
             }, (_err) =>
             {
@@ -54,16 +54,16 @@ namespace hkg.collector
         public void PostList(Proto.ListRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["offset"] = _request._offset.AsAny();
-            paramMap["count"] = _request._count.AsAny();
+            paramMap["offset"] = _request._offset;
+            paramMap["count"] = _request._count;
 
             post(string.Format("{0}/hkg/collector/Document/List", domain), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
-                options.Converters.Add(new FieldConverter());
+                options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.DocumentListResponse>(_reply, options);
-                Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt(), rsp._status._message.AsString());
-                model.UpdateList(status, rsp._total.AsLong(), rsp._entity);
+                Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
+                model.UpdateList(status, rsp._total.AsInt64(), rsp._entity);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());
@@ -76,16 +76,16 @@ namespace hkg.collector
         public void PostTidy(Proto.DocumentTidyRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = _request._uuid.AsAny();
-            paramMap["host"] = _request._host.AsAny();
-            paramMap["rule"] = Any.FromStringMap(_request._rule);
+            paramMap["uuid"] = _request._uuid;
+            paramMap["host"] = _request._host;
+            paramMap["rule"] = _request._rule;
 
             post(string.Format("{0}/hkg/collector/Document/Tidy", domain), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
-                options.Converters.Add(new FieldConverter());
+                options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
-                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt(), rsp._status._message.AsString());
+                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
                 model.UpdateTidyFinish(reply, paramMap["uuid"].AsString());
             }, (_err) =>
             {
@@ -94,6 +94,52 @@ namespace hkg.collector
                 model.UpdateTidyFinish(reply, null); 
             }, null);
         }
+
+        public void PostDelete(Proto.DocumentDeleteRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["uuid"] = _request._uuid;
+
+            post(string.Format("{0}/hkg/collector/Document/Delete", domain), paramMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.DocumentDeleteResponse>(_reply, options);
+                Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
+                List<string> uuid = new List<string>();
+                uuid.Add(rsp._uuid.AsString());
+                model.UpdateDelete(status, uuid);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+                Model.Status status = Model.Status.New<Model.Status>(_err.getCode(), _err.getMessage());
+                model.UpdateDelete(status, null);
+            }, null);
+        }
+
+        public void PostBatchDelete(Proto.DocumentBatchDeleteRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["uuid"] = _request._uuid;
+
+            post(string.Format("{0}/hkg/collector/Document/BatchDelete", domain), paramMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.DocumentBatchDeleteResponse>(_reply, options);
+                Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
+                List<string> uuid = new List<string>();
+                uuid.AddRange(rsp._uuid.AsStringAry());
+                model.UpdateDelete(status, uuid);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+                Model.Status status = Model.Status.New<Model.Status>(_err.getCode(), _err.getMessage());
+                model.UpdateDelete(status, null);
+            }, null);
+        }
+
+
 
 
 
@@ -107,9 +153,8 @@ namespace hkg.collector
                 req.ContentType =
                 "application/json;charset=utf-8";
                 var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyConverter());
-                string json = System.Text.Json.JsonSerializer.Serialize(_params, options);
-                byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+                options.Converters.Add(new AnyProtoConverter());
+                byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, options);
                 req.ContentLength = data.Length;
                 using (Stream reqStream = req.GetRequestStream())
                 {

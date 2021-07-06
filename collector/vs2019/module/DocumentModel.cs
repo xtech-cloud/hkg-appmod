@@ -74,5 +74,10 @@ namespace hkg.collector
         {
             controller.TidyFinish(_reply, _uuid);
         }
+
+        public void UpdateDelete(Model.Status _reply, List<string> _uuid)
+        {
+            controller.Delete(_reply, status, _uuid);
+        }
     }
 }

@@ -41,8 +41,8 @@ namespace hkg.metatable
                 count = Any.FromInt64(int.MaxValue);
 
             Proto.ListRequest req = new Proto.ListRequest();
-            req._offset = Proto.Field.FromLong(offset.AsInt64());
-            req._count = Proto.Field.FromLong(count.AsInt64());
+            req._offset = Any.FromInt64(offset.AsInt64());
+            req._count = Any.FromInt64(count.AsInt64());
 
             service.PostSourceList(domain.AsString(), req, (_reply)=>
             {
@@ -64,8 +64,8 @@ namespace hkg.metatable
                 count = Any.FromInt64(int.MaxValue);
 
             Proto.ListRequest req = new Proto.ListRequest();
-            req._offset = Proto.Field.FromLong(offset.AsInt64());
-            req._count = Proto.Field.FromLong(count.AsInt64());
+            req._offset = Any.FromInt64(offset.AsInt64());
+            req._count = Any.FromInt64(count.AsInt64());
 
             service.PostFormatList(domain.AsString(), req, (_reply) =>
             {
@@ -86,8 +86,8 @@ namespace hkg.metatable
                 count = Any.FromInt64(int.MaxValue);
 
             Proto.ListRequest req = new Proto.ListRequest();
-            req._offset = Proto.Field.FromLong(offset.AsInt64());
-            req._count = Proto.Field.FromLong(count.AsInt64());
+            req._offset = Any.FromInt64(offset.AsInt64());
+            req._count = Any.FromInt64(count.AsInt64());
 
             service.PostSchemaList(domain.AsString(), req, (_reply) =>
             {
@@ -109,8 +109,8 @@ namespace hkg.metatable
                 count = Any.FromInt64(int.MaxValue);
 
             Proto.ListRequest req = new Proto.ListRequest();
-            req._offset = Proto.Field.FromLong(offset.AsInt64());
-            req._count = Proto.Field.FromLong(count.AsInt64());
+            req._offset = Any.FromInt64(offset.AsInt64());
+            req._count = Any.FromInt64(count.AsInt64());
 
             service.PostVocabularyList(domain.AsString(), req, (_reply) =>
             {

@@ -30,18 +30,18 @@ namespace hkg.metatable
         public void PostImportYaml(Proto.ImportYamlRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["content"] = _request._content.AsAny();
+            paramMap["content"] = _request._content;
 
             post(string.Format("{0}/hkg/metatable/Format/ImportYaml", domain), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
-                options.Converters.Add(new FieldConverter());
+                options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
-                Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt(), rsp._status._message.AsString());
+                Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
                 //TODO
                 Proto.ListRequest req = new Proto.ListRequest();
-                req._offset = Proto.Field.FromLong(0);
-                req._count = Proto.Field.FromLong(int.MaxValue);
+                req._offset = Any.FromInt32(0);
+                req._count = Any.FromInt64(int.MaxValue);
                 PostList(req);
             }, (_err) =>
             {
@@ -53,15 +53,15 @@ namespace hkg.metatable
         public void PostList(Proto.ListRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["offset"] = _request._offset.AsAny();
-            paramMap["count"] = _request._count.AsAny();
+            paramMap["offset"] = _request._offset;
+            paramMap["count"] = _request._count;
 
             post(string.Format("{0}/hkg/metatable/Format/List", domain), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
-                options.Converters.Add(new FieldConverter());
+                options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.FormatListResponse>(_reply, options);
-                Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt(), rsp._status._message.AsString());
+                Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
                 model.UpdateList(status, rsp._entity);
             }, (_err) =>
             {
@@ -75,18 +75,18 @@ namespace hkg.metatable
         public void PostDelete(Proto.DeleteRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = _request._uuid.AsAny();
+            paramMap["uuid"] = _request._uuid;
 
             post(string.Format("{0}/hkg/metatable/Format/Delete", domain), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
-                options.Converters.Add(new FieldConverter());
+                options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
-                Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt(), rsp._status._message.AsString());
+                Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
                 //TODO
                 Proto.ListRequest req = new Proto.ListRequest();
-                req._offset = Proto.Field.FromLong(0);
-                req._count = Proto.Field.FromLong(int.MaxValue);
+                req._offset = Any.FromInt64(0);
+                req._count = Any.FromInt64(int.MaxValue);
                 PostList(req);
             }, (_err) =>
             {
@@ -106,9 +106,8 @@ namespace hkg.metatable
                 req.ContentType =
                 "application/json;charset=utf-8";
                 var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyConverter());
-                string json = System.Text.Json.JsonSerializer.Serialize(_params, options);
-                byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+                options.Converters.Add(new AnyProtoConverter());
+                byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, options);
                 req.ContentLength = data.Length;
                 using (Stream reqStream = req.GetRequestStream())
                 {

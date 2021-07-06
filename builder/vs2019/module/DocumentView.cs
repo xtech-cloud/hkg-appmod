@@ -65,12 +65,16 @@ namespace hkg.builder
                 {
                     bridge.Alert(ex.Message);
                 });
-                long timestamp = v.entity._updatedAt.AsLong();
+                long timestamp = v.entity._updatedAt.AsInt64();
                 DateTimeOffset dto = DateTimeOffset.FromUnixTimeSeconds(timestamp);
                 param["updatedAt"] = dto.LocalDateTime.ToString();
                 list.Add(param);
             }
             bridge.RefreshList(_total, list);
+        }
+        public void RefreshRemovedDocument(List<string> _uuid)
+        {
+            bridge.RefreshRemovedDocument(_uuid);
         }
 
         public void QueryCollectorDocumentList()
@@ -114,7 +118,7 @@ namespace hkg.builder
                         dict[code] = new Dictionary<string, string>();
                         dict[code]["name"] = e.name;
                         dict[code]["code"] = code;
-                        dict[code]["label"] = Proto.Field.FromStringAry(e.keyword).AsString();
+                        dict[code]["label"] = Any.FromStringAry(e.keyword).AsString();
                     }
                     e._code = code;
                 }

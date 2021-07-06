@@ -39,27 +39,25 @@
                     <hc:SimplePanel DockPanel.Dock="Top">
                         <TextBlock Text="文档列表" Style="{StaticResource TextBlockSubTitle}" HorizontalAlignment="Left"  />
                     </hc:SimplePanel>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition />
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <hc:Pagination MaxPageCount="10" PageIndex="{Binding PageIndex}" IsJumpEnabled="False" Grid.Row="0">
+                    <hc:SimplePanel>
+                        <hc:SearchBar Name="sbDocument" ShowClearButton="True" Style="{StaticResource SearchBarPlus}" VerticalAlignment="Top" Margin="0,16,0,0" SearchStarted="onDocumentSearchStarted"/>
+                        <hc:Pagination Name="piDocument" MaxPageCount="10" IsJumpEnabled="False" Margin="0,56,0,0" VerticalAlignment="Top" HorizontalAlignment="Stretch" PageUpdated="onDocumentPageUpdated">
                             <hc:Interaction.Triggers>
                                 <hc:EventTrigger EventName="PageUpdated">
                                     <hc:EventToCommand Command="{Binding PageUpdatedCmd}" PassEventArgsToCommand="True" />
                                 </hc:EventTrigger>
                             </hc:Interaction.Triggers>
                         </hc:Pagination>
-                        <DataGrid Name="dgDocument" IsReadOnly="True" Margin="0,16,0,0" Grid.Row="1" HeadersVisibility="Column" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding DocumentList}" SelectionChanged="onDocumentSelectionChanged">
+                        <DataGrid Name="dgDocument" IsReadOnly="True" Margin="0,96,0,42" HeadersVisibility="Column" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding DocumentList}" SelectionChanged="onDocumentSelectionChanged">
                             <DataGrid.Columns>
                                 <DataGridTextColumn IsReadOnly="True" CanUserResize="True" Binding="{Binding Name}" Header="名称"/>
                                 <DataGridTextColumn IsReadOnly="True" CanUserResize="True" Binding="{Binding Label}" Header="标签"/>
                             </DataGrid.Columns>
                         </DataGrid>
-                        <StackPanel Margin="0,8,0,0" Grid.Row="2"/>
-                    </Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="删除" Width="140" Margin="16,0,0,0"  Click="onDeleteClick" VerticalAlignment="Bottom"/>
+                        </StackPanel>
+                    </hc:SimplePanel>
                 </DockPanel>
                 <hc:Divider DockPanel.Dock="Left" Orientation="Vertical"/>
                 <hc:SimplePanel Margin="24">

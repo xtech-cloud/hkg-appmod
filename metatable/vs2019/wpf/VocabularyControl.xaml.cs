@@ -10,7 +10,6 @@ namespace hkg.metatable
         public class TagItem
         {
             public string Name { get; set; }
-            public bool IsSelected { get; set; }
         }
         public class VocabularyUiBridge : IVocabularyUiBridge
         {
@@ -23,6 +22,7 @@ namespace hkg.metatable
 
             public void Alert(string _message)
             {
+                HandyControl.Controls.Growl.Warning(_message, "StatusGrowl");
             }
 
             public void RefreshList(List<Dictionary<string, string>> _list)
@@ -44,28 +44,26 @@ namespace hkg.metatable
                 control.ValueList.Clear();
                 string vstr = _element["value"];
                 if (vstr.StartsWith("["))
-                    vstr= vstr.Remove(0, 1);
+                    vstr = vstr.Remove(0, 1);
                 if (vstr.EndsWith("]"))
-                    vstr= vstr.Remove(vstr.Length - 1, 1);
+                    vstr = vstr.Remove(vstr.Length - 1, 1);
                 foreach (var v in vstr.Split(","))
                 {
                     TagItem tag = new TagItem();
-                    tag.Name = v;
-                    tag.IsSelected = false;
+                    tag.Name = v.Remove(v.Length - 1, 1).Remove(0, 1);
                     control.ValueList.Add(tag);
                 }
 
                 control.LabelList.Clear();
                 vstr = _element["label"];
                 if (vstr.StartsWith("["))
-                    vstr= vstr.Remove(0, 1);
+                    vstr = vstr.Remove(0, 1);
                 if (vstr.EndsWith("]"))
-                    vstr= vstr.Remove(vstr.Length - 1, 1);
+                    vstr = vstr.Remove(vstr.Length - 1, 1);
                 foreach (var v in vstr.Split(","))
                 {
                     TagItem tag = new TagItem();
-                    tag.Name = v;
-                    tag.IsSelected = false;
+                    tag.Name = v.Remove(v.Length - 1, 1).Remove(0, 1);
                     control.LabelList.Add(tag);
                 }
             }
@@ -143,9 +141,9 @@ namespace hkg.metatable
 
         private void onSearchValueStarted(object sender, HandyControl.Data.FunctionEventArgs<string> e)
         {
-            foreach(var v in ValueList)
+            foreach (var v in ValueList)
             {
-                v.IsSelected = v.Name.Contains(sbValue.Text);
+                //v.IsSelected = v.Name.Contains(sbValue.Text);
             }
         }
     }

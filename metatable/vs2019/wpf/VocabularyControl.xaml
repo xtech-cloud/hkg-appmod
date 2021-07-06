@@ -18,7 +18,7 @@
             <Style x:Key="TagCustomStyle" BasedOn="{StaticResource TagBaseStyle}" TargetType="hc:Tag">
                 <Setter Property="Content" Value="{Binding Name}"/>
                 <Setter Property="Margin" Value="5"/>
-                <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+                <Setter Property="IsSelected" Value="true"/>
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -29,7 +29,6 @@
                 <TextBlock HorizontalAlignment="Left" Margin="0 6 0 0" Text="存储位置" Style="{StaticResource TextBlockSubTitle}"/>
                 <RadioButton Margin="0, 12, 0, 0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="公有云" Checked="onPublicChecked"/>
                 <RadioButton Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content=" 私有云" Checked="onPrivateChecked"/>
-                <RadioButton Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="本地" IsEnabled="False" Checked="onLocalChecked"/>
             </StackPanel>
         </Border>
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}" Margin="16 0 0 0">

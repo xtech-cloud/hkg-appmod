@@ -19,8 +19,8 @@ namespace hkg.collector
         public void PostDocumentList(string _domain, Proto.ListRequest _request, System.Action<string> _onReply)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["offset"] = _request._offset.AsAny();
-            paramMap["count"] = _request._count.AsAny();
+            paramMap["offset"] = _request._offset;
+            paramMap["count"] = _request._count;
 
             post(string.Format("{0}/hkg/collector/Document/List", _domain), paramMap, (_reply) =>
             {
@@ -28,8 +28,8 @@ namespace hkg.collector
             }, (_err) =>
             {
                 Proto.BlankResponse rsp = new Proto.BlankResponse();
-                rsp._status._code = Proto.Field.FromInt(_err.getCode());
-                rsp._status._message = Proto.Field.FromString(_err.getMessage());
+                rsp._status._code = Any.FromInt32(_err.getCode());
+                rsp._status._message = Any.FromString(_err.getMessage());
                 string jsonRsp = responseToJson(rsp);
                 _onReply(jsonRsp);
             }, null);
@@ -46,7 +46,7 @@ namespace hkg.collector
                 req.ContentType =
                 "application/json;charset=utf-8";
                 var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyConverter());
+                options.Converters.Add(new AnyProtoConverter());
                 string json = System.Text.Json.JsonSerializer.Serialize(_params, options);
                 byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
                 req.ContentLength = data.Length;
@@ -83,7 +83,7 @@ namespace hkg.collector
         private string responseToJson(object _rsp)
         {
             var options = new JsonSerializerOptions();
-            options.Converters.Add(new FieldConverter());
+            options.Converters.Add(new AnyProtoConverter());
             options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
             return JsonSerializer.Serialize(_rsp, options);
         }

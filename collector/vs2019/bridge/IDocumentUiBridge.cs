@@ -17,5 +17,6 @@ namespace hkg.collector
 
         void RefreshScrapeFinish(int _code, string _message, string _name, string _address);
         void RefreshTidyFinish(int _code, string _message, string _uuid);
+        void RefreshRemovedDocument(List<string> _uuid);
     }
 }

@@ -12,10 +12,10 @@ namespace hkg.builder
         public void OnMergeSubmit(string _name, string[] _label, string[] _text, string _format)
         {
             Proto.DocumentMergeRequest req = new Proto.DocumentMergeRequest();
-            req._name = Proto.Field.FromString(_name);
-            req._label = Proto.Field.FromStringAry(_label);
-            req._text = Proto.Field.FromStringAry(_text);
-            req._format = Proto.Field.FromString(_format);
+            req._name = Any.FromString(_name);
+            req._label = Any.FromStringAry(_label);
+            req._text = Any.FromStringAry(_text);
+            req._format = Any.FromString(_format);
 
             service.PostMerge(req);
         }
@@ -24,8 +24,8 @@ namespace hkg.builder
         public void OnListSubmit(long _offset, long _count)
         {
             Proto.ListRequest req = new Proto.ListRequest();
-            req._offset = Proto.Field.FromLong(_offset);
-            req._count = Proto.Field.FromLong(_count);
+            req._offset = Any.FromInt64(_offset);
+            req._count = Any.FromInt64(_count);
 
             service.PostList(req);
         }
@@ -39,8 +39,8 @@ namespace hkg.builder
             view.QueryCollectorDocumentList();
 
             Proto.ListRequest req = new Proto.ListRequest();
-            req._offset = Proto.Field.FromLong(0);
-            req._count = Proto.Field.FromLong(int.MaxValue);
+            req._offset = Any.FromInt64(0);
+            req._count = Any.FromInt64(int.MaxValue);
             service.PostList(req);
         }
 
@@ -52,6 +52,13 @@ namespace hkg.builder
         public void BuildMergeParam(string _formatName, ref string _paramFormat, string _documentCode, ref string[] _paramLabel, ref string[] _paramText)
         {
             queryModel.BuildMergeParam(_formatName, ref _paramFormat, _documentCode, ref _paramLabel, ref _paramText);
+        }
+
+        public void OnBatchDeleteSubmit(string[] _uuid)
+        {
+            Proto.DocumentBatchDeleteRequest req = new Proto.DocumentBatchDeleteRequest();
+            req._uuid = Any.FromStringAry(_uuid);
+            service.PostBatchDelete(req);
         }
     }
 }
