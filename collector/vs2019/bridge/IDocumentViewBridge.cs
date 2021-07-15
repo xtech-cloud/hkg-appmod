@@ -12,6 +12,7 @@ namespace hkg.collector
         void OnDeleteSubmit(string _uuid);
         void OnBatchDeleteSubmit(string[] _uuid);
         void OnRefreshMetatableSourceSubmit(string _location);
+        void OnRefreshMetatableSchemaSubmit(string _location);
         void OnRefreshMetatableVocabularySubmit(string _location);
 
         void OnLocationChanged(string _location);

@@ -102,33 +102,6 @@ namespace hkg.collector
             model.UpdateGet(_uuid);
         }
 
-        public void QueryMetatableSource()
-        {
-            Dictionary<string, Any> param = new Dictionary<string, Any>();
-            param["domain"] = Any.FromString(service.domain);
-            param["offset"] = Any.FromInt64(0);
-            param["count"] = Any.FromInt64(int.MaxValue);
-            model.Broadcast("/hkg/metatable/Query/Request/Source/List", param);
-        }
-
-        public void QueryMetatableVocabulary()
-        {
-            Dictionary<string, Any> param = new Dictionary<string, Any>();
-            param["domain"] = Any.FromString(service.domain);
-            param["offset"] = Any.FromInt64(0);
-            param["count"] = Any.FromInt64(int.MaxValue);
-            model.Broadcast("/hkg/metatable/Query/Request/Vocabulary/List", param);
-        }
-
-        public void QueryMetatableSchema()
-        {
-            Dictionary<string, Any> param = new Dictionary<string, Any>();
-            param["domain"] = Any.FromString(service.domain);
-            param["offset"] = Any.FromInt64(0);
-            param["count"] = Any.FromInt64(int.MaxValue);
-            model.Broadcast("/hkg/metatable/Query/Request/Schema/List", param);
-        }
-
         public void OnRefreshMetatableSourceSubmit(string _location)
         {
             var externalService = findService("hkg.metatable.SourceService");
@@ -187,57 +160,63 @@ namespace hkg.collector
 
         }
 
-        private void handleMetatableQuerySchemaList(Model.Status _status, object _data)
+        public void OnRefreshMetatableSchemaSubmit(string _location)
         {
-            /*
-            string json = (string)_data;
-            var result = JsonSerializer.Deserialize<MetatableSchemaListReply>(json);
-            List<Dictionary<string, Any>> list = new List<Dictionary<string, Any>>();
-            Dictionary<string, Dictionary<string, string>> expression = new Dictionary<string, Dictionary<string, string>>();
-            if (0 == result.status.code)
+            var externalService = findService("hkg.metatable.SchemaService");
+            externalService.CallAlias(string.Format("/List@{0}", _location), (_parameter) =>
             {
-                foreach (var e in result.entity)
-                {
-                    Dictionary<string, string> p = new Dictionary<string, string>();
-                    Dictionary<string, string> exp = new Dictionary<string, string>();
-                    p["name"] = e.name;
-                    p["rule.count"] = e.rule.Count.ToString();
-                    for (int i = 0; i < e.rule.Count; ++i)
-                    {
-                        string rule = "";
-                        p[string.Format("rule.{0}.name", i)] = e.rule[i].name;
-                        p[string.Format("rule.{0}.field", i)] = e.rule[i].field;
-                        p[string.Format("rule.{0}.type", i)] = e.rule[i].type;
-                        p[string.Format("rule.{0}.element", i)] = e.rule[i].element;
-                        if (!string.IsNullOrEmpty(e.rule[i].type))
-                            rule += string.Format("$t={0};", e.rule[i].type);
-                        if (!string.IsNullOrEmpty(e.rule[i].element))
-                            rule += string.Format("$e={0};", e.rule[i].element);
-                        string key = "";
-                        string value = "";
-                        if (null != e.rule[i].pair)
-                        {
-                            if (!e.rule[i].pair.TryGetValue("key", out key))
-                                key = "";
-                            else
-                                rule += string.Format("$pk={0};", key);
-                            if (!e.rule[i].pair.TryGetValue("value", out value))
-                                value = "";
-                            else
-                                rule += string.Format("$pv={0};", value);
-                        }
-                        p[string.Format("rule.{0}.pair.key", i)] = key;
-                        p[string.Format("rule.{0}.pair.value", i)] = value;
+            }, (_reply) =>
+             {
+                 var result = JsonSerializer.Deserialize<MetatableSchemaListReply>(_reply);
+                 List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
+                 Dictionary<string, Dictionary<string, string>> expression = new Dictionary<string, Dictionary<string, string>>();
+                 if (0 == result.status.code)
+                 {
+                     foreach (var e in result.entity)
+                     {
+                         Dictionary<string, string> p = new Dictionary<string, string>();
+                         Dictionary<string, string> exp = new Dictionary<string, string>();
+                         p["name"] = e.name;
+                         p["rule.count"] = e.rule.Count.ToString();
+                         for (int i = 0; i < e.rule.Count; ++i)
+                         {
+                             string rule = "";
+                             p[string.Format("rule.{0}.name", i)] = e.rule[i].name;
+                             p[string.Format("rule.{0}.field", i)] = e.rule[i].field;
+                             p[string.Format("rule.{0}.type", i)] = e.rule[i].type;
+                             p[string.Format("rule.{0}.element", i)] = e.rule[i].element;
+                             if (!string.IsNullOrEmpty(e.rule[i].type))
+                                 rule += string.Format("$t={0};", e.rule[i].type);
+                             if (!string.IsNullOrEmpty(e.rule[i].element))
+                                 rule += string.Format("$e={0};", e.rule[i].element);
+                             string key = "";
+                             string value = "";
+                             if (null != e.rule[i].pair)
+                             {
+                                 if (!e.rule[i].pair.TryGetValue("key", out key))
+                                     key = "";
+                                 else
+                                     rule += string.Format("$pk={0};", key);
+                                 if (!e.rule[i].pair.TryGetValue("value", out value))
+                                     value = "";
+                                 else
+                                     rule += string.Format("$pv={0};", value);
+                             }
+                             p[string.Format("rule.{0}.pair.key", i)] = key;
+                             p[string.Format("rule.{0}.pair.value", i)] = value;
 
-                        exp[rule] = e.rule[i].field;
-                    }
-                    list.Add(p);
-                    expression[e.name] = exp;
-                }
-            }
-            bridge.RefreshQuerySchemaList(list);
-            bridge.RefreshQuerySchemaRuleExpression(expression);
-            */
+                             exp[rule] = e.rule[i].field;
+                         }
+                         list.Add(p);
+                         expression[e.name] = exp;
+                     }
+                 }
+                 bridge.RefreshQuerySchemaList(list);
+                 bridge.RefreshQuerySchemaRuleExpression(expression);
+             }, (_err) =>
+             {
+                 bridge.Alert(_err.getMessage());
+             }, null);
         }
 
         private void handleAuthSigninSuccess(Model.Status _status, object _data)

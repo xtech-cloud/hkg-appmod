@@ -159,7 +159,7 @@ namespace hkg.collector
                     break;
                 }
 
-                if(control.lbTask.Items.Count == 0)
+                if (control.lbTask.Items.Count == 0)
                 {
                     control.lbVocabulary.Visibility = System.Windows.Visibility.Visible;
                     control.lbTask.Visibility = System.Windows.Visibility.Collapsed;
@@ -167,7 +167,7 @@ namespace hkg.collector
                 }
             }
 
-            public void RefreshQuerySchemaList(List<Dictionary<string, Any>> _list)
+            public void RefreshQuerySchemaList(List<Dictionary<string, string>> _list)
             {
                 control.schema = _list;
             }
@@ -192,7 +192,6 @@ namespace hkg.collector
                     doc.IsTidy = true;
                     break;
                 }
-
             }
 
             public void RefreshRemovedDocument(List<string> _uuid)
@@ -228,7 +227,7 @@ namespace hkg.collector
         public List<Document> TotalDocumentList { get; set; }
         private List<Dictionary<string, Any>> source = new List<Dictionary<string, Any>>();
         private List<Dictionary<string, Any>> vocabulary = new List<Dictionary<string, Any>>();
-        private List<Dictionary<string, Any>> schema = new List<Dictionary<string, Any>>();
+        private List<Dictionary<string, string>> schema = new List<Dictionary<string, string>>();
         private Dictionary<string, Dictionary<string, string>> rule = new Dictionary<string, Dictionary<string, string>>();
         private string location_ { get; set; }
 
@@ -243,10 +242,8 @@ namespace hkg.collector
             rbPublic.IsEnabled = false;
             lbVocabulary.Visibility = System.Windows.Visibility.Visible;
             lbTask.Visibility = System.Windows.Visibility.Collapsed;
-#if DEBUG
-            rbPrivate.IsEnabled = true;
-            rbPublic.IsEnabled = true;
-#endif
+            btnSync.Visibility = System.Windows.Visibility.Collapsed;
+            btnScrape.IsEnabled = false;
         }
         private void onPublicChecked(object sender, System.Windows.RoutedEventArgs e)
         {
@@ -255,6 +252,7 @@ namespace hkg.collector
             location_ = "public";
             dpMainPage.Visibility = System.Windows.Visibility.Visible;
             btnScrape.Visibility = System.Windows.Visibility.Visible;
+            btnSync.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onPrivateChecked(object sender, System.Windows.RoutedEventArgs e)
@@ -264,6 +262,7 @@ namespace hkg.collector
             location_ = "private";
             dpMainPage.Visibility = System.Windows.Visibility.Visible;
             btnScrape.Visibility = System.Windows.Visibility.Visible;
+            btnSync.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onLocalChecked(object sender, System.Windows.RoutedEventArgs e)
@@ -273,6 +272,7 @@ namespace hkg.collector
             location_ = "local";
             dpMainPage.Visibility = System.Windows.Visibility.Visible;
             btnScrape.Visibility = System.Windows.Visibility.Visible;
+            btnSync.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onDocumentSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -439,16 +439,13 @@ namespace hkg.collector
             bridge.OnBatchDeleteSubmit(uuid.ToArray());
         }
 
-        private void onRefreshSourceClick(object sender, System.Windows.RoutedEventArgs e)
+        private void onSyncClick(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IDocumentViewBridge;
             bridge.OnRefreshMetatableSourceSubmit(location_);
-        }
-
-        private void onRefreshVocabularyClick(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var bridge = facade.getViewBridge() as IDocumentViewBridge;
+            bridge.OnRefreshMetatableSchemaSubmit(location_);
             bridge.OnRefreshMetatableVocabularySubmit(location_);
+            btnScrape.IsEnabled = true;
         }
     }
 }

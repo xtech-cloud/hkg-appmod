@@ -12,7 +12,7 @@ namespace hkg.collector
         void RefreshOne(Dictionary<string, Any> _document);
         void RefreshQuerySourceList(List<Dictionary<string, Any>> _list);
         void RefreshQueryVocabularyList(List<Dictionary<string, Any>> _list);
-        void RefreshQuerySchemaList(List<Dictionary<string, Any>> _list);
+        void RefreshQuerySchemaList(List<Dictionary<string, string>> _list);
         void RefreshQuerySchemaRuleExpression(Dictionary<string, Dictionary<string, string>> _list);
 
         void RefreshScrapeFinish(int _code, string _message, string _name, string _address);

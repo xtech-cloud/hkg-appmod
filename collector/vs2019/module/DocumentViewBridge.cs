@@ -46,10 +46,6 @@ namespace hkg.collector
             service.useMock = _location.Equals("local");
             service.SwitchLocation(_location);
 
-            view.QueryMetatableSource();
-            view.QueryMetatableVocabulary();
-            view.QueryMetatableSchema();
-
             Proto.ListRequest req = new Proto.ListRequest();
             req._offset = Any.FromInt64(0);
             req._count = Any.FromInt64(int.MaxValue);
@@ -83,6 +79,11 @@ namespace hkg.collector
         public void OnRefreshMetatableVocabularySubmit(string _location)
         {
             view.OnRefreshMetatableVocabularySubmit(_location);
+        }
+
+        public void OnRefreshMetatableSchemaSubmit(string _location)
+        {
+            view.OnRefreshMetatableSchemaSubmit(_location);
         }
     }
 }
