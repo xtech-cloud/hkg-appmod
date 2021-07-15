@@ -28,10 +28,6 @@ namespace hkg.collector
             framework_.getStaticPipe().RegisterService(DocumentService.NAME, new DocumentService());
     
             framework_.getStaticPipe().RegisterModel(BlankModel.NAME, new BlankModel());
-
-            framework_.getStaticPipe().RegisterModel(QueryModel.NAME, new QueryModel());
-            framework_.getStaticPipe().RegisterView(QueryView.NAME, new QueryView());
-            framework_.getStaticPipe().RegisterService(QueryService.NAME, new QueryService());
         }
 
         public void Cancel()
@@ -47,10 +43,6 @@ namespace hkg.collector
             framework_.getStaticPipe().CancelModel(DocumentModel.NAME);
 
             framework_.getStaticPipe().CancelModel(BlankModel.NAME);
-            framework_.getStaticPipe().CancelModel(QueryModel.NAME);
-            framework_.getStaticPipe().CancelView(QueryView.NAME);
-            framework_.getStaticPipe().CancelService(QueryService.NAME);
-    
         }
 
         private Framework framework_ = null;

@@ -67,6 +67,13 @@ namespace hkg.metatable
                     control.LabelList.Add(tag);
                 }
             }
+            public void RefreshActivateLocation(string _location)
+            {
+                if (_location.Equals("public"))
+                    control.rbPublic.IsEnabled = true;
+                else if (_location.Equals("private"))
+                    control.rbPrivate.IsEnabled = true;
+            }
         }
 
         public VocabularyFacade facade { get; set; }
@@ -79,6 +86,9 @@ namespace hkg.metatable
             ValueList = new ObservableCollection<TagItem>();
             LabelList = new ObservableCollection<TagItem>();
             InitializeComponent();
+            dpMainPage.Visibility = System.Windows.Visibility.Hidden;
+            rbPrivate.IsEnabled = false;
+            rbPublic.IsEnabled = false;
             spRenameVocabulary.Visibility = System.Windows.Visibility.Collapsed;
             pageDetail.Visibility = System.Windows.Visibility.Hidden;
         }
@@ -115,18 +125,21 @@ namespace hkg.metatable
         {
             var bridge = facade.getViewBridge() as IVocabularyViewBridge;
             bridge.OnLocationChanged("public");
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onPrivateChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IVocabularyViewBridge;
             bridge.OnLocationChanged("private");
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onLocalChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IVocabularyViewBridge;
             bridge.OnLocationChanged("local");
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onDeleteVocabularyClick(object sender, System.Windows.RoutedEventArgs e)

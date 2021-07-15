@@ -10,6 +10,10 @@ namespace hkg.metatable
     public class VocabularyService : Service
     {
         public const string NAME = "hkg.metatable.VocabularyService";
+        public string domainPublic = "";
+        public string domainPrivate = "";
+        public string accessToken = "";
+        public string uuid = "";
         private VocabularyModel model = null;
         private string domain { get; set; }
 
@@ -22,10 +26,29 @@ namespace hkg.metatable
         {
             getLogger().Trace("setup VocabularyService");
         }
+        public void CreateAlias()
+        {
+            createAlias("/List@public", string.Format("{0}/hkg/metatable/Vocabulary/List", domainPublic), "POST", false, new Dictionary<string, Any>
+            {
+                {"offset", Any.FromInt64(0) },
+                {"count", Any.FromInt64(int.MaxValue) },
+            });
+            createAlias("/List@private", string.Format("{0}/hkg/metatable/Vocabulary/List", domainPrivate), "POST", false, new Dictionary<string, Any>
+            {
+                {"offset", Any.FromInt64(0) },
+                {"count", Any.FromInt64(int.MaxValue) },
+            });
+        }
 
         public void SwitchLocation(string _location)
         {
-            domain = getConfig()[string.Format("domain.{0}", _location)].AsString();
+            if (_location.Equals("public"))
+                domain = domainPublic;
+            else if (_location.Equals("private"))
+                domain = domainPrivate;
+            //开发时使用
+            if (string.IsNullOrEmpty(domain))
+                domain = getConfig()[string.Format("_.domain.{0}", _location)].AsString();
         }
 
         public void PostImportYaml(Proto.ImportYamlRequest _request)

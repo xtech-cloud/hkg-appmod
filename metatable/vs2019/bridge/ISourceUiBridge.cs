@@ -10,5 +10,6 @@ namespace hkg.metatable
 
         void RefreshSourceList(List<Dictionary<string, string>> _source);
         void RefreshSource(Dictionary<string, string> _source);
+        void RefreshActivateLocation(string _location);
     }
 }

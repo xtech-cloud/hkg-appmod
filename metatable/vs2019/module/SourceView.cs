@@ -12,11 +12,12 @@ namespace hkg.metatable
         private Facade facade = null;
         private SourceModel model = null;
         private ISourceUiBridge bridge = null;
+        private SourceService service = null;
 
         protected override void preSetup()
         {
             model = findModel(SourceModel.NAME) as SourceModel;
-            var service = findService(SourceService.NAME) as SourceService;
+            service = findService(SourceService.NAME) as SourceService;
             facade = findFacade("hkg.metatable.SourceFacade");
             SourceViewBridge vb = new SourceViewBridge();
             vb.view = this;
@@ -27,6 +28,7 @@ namespace hkg.metatable
         protected override void setup()
         {
             getLogger().Trace("setup SourceView");
+            addRouter("/Application/Auth/Signin/Success", handleAuthSigninSuccess);
         }
 
         protected override void postSetup()
@@ -76,5 +78,22 @@ namespace hkg.metatable
         {
             model.UpdateGet(_uuid);
         }
+        private void handleAuthSigninSuccess(Model.Status _status, object _data)
+        {
+            Dictionary<string, Any> data = (Dictionary<string, Any>)_data;
+            if (data["location"].AsString().Equals("public"))
+            {
+                service.domainPublic = data["host"].AsString();
+            }
+            if (data["location"].AsString().Equals("private"))
+            {
+                service.domainPrivate = data["host"].AsString();
+            }
+            service.accessToken = data["accessToken"].AsString();
+            service.uuid = data["uuid"].AsString();
+            bridge.RefreshActivateLocation(data["location"].AsString());
+            service.CreateAlias();
+        }
+
     }
 }

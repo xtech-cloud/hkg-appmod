@@ -27,14 +27,13 @@
         <Border DockPanel.Dock="Left" Style="{StaticResource BorderRegion}" Width="260" Effect="{StaticResource EffectShadow1}">
             <StackPanel Margin="24">
                 <TextBlock HorizontalAlignment="Left" Margin="0 6 0 0" Text="存储位置" Style="{StaticResource TextBlockSubTitle}"/>
-                <RadioButton Margin="0, 12, 0, 0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="公有云" Checked="onPublicChecked"/>
-                <RadioButton Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content=" 私有云" Checked="onPrivateChecked"/>
-                <RadioButton Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="本地" IsEnabled="False" Checked="onLocalChecked"/>
-                <Button Content="采集" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onScrapeClick"/>
+                <RadioButton Name="rbPublic" Margin="0, 12, 0, 0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="公有云" Checked="onPublicChecked"/>
+                <RadioButton Name="rbPrivate" Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="私有云" Checked="onPrivateChecked"/>
+                <Button Name="btnScrape" Content="采集" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onScrapeClick"/>
             </StackPanel>
         </Border>
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}" Margin="16 0 0 0">
-            <DockPanel>
+            <DockPanel Name="dpMainPage">
                 <DockPanel Margin="20" DockPanel.Dock="Left" Width="500">
                     <hc:SimplePanel DockPanel.Dock="Top">
                         <TextBlock Text="文档列表" Style="{StaticResource TextBlockSubTitle}" HorizontalAlignment="Left"  />
@@ -91,10 +90,18 @@
                     <hc:Drawer Name="drawerScrape" MaskCanClose="True" Dock="Right" ShowMode="Cover">
                         <Border Background="{StaticResource RegionBrush}" Width="600" BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderBrush}">
                             <StackPanel Margin="24">
-                                <Button Content="开始采集" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onStartScrapeClick"/>
-                                <ComboBox Name="cbSource"  hc:InfoElement.TitleWidth="80" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="来源表" Style="{StaticResource ComboBoxExtend}" Margin="0,8,0,0"/>
-                                <ComboBox Name="cbVocabulary" hc:InfoElement.TitleWidth="80" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="词汇表" Style="{StaticResource ComboBoxExtend}" Margin="0,16,0,0" SelectionChanged="onVocabularySelectionChanged"/>
-                                <ListBox Name="lbVocabulary" SelectionMode="Extended" ></ListBox>
+                                <Button Name="btnStartScrape" Content="开始采集" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onStartScrapeClick"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <ComboBox Name="cbSource"  MinWidth="200" hc:InfoElement.TitleWidth="80" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="来源表" Style="{StaticResource ComboBoxExtend}"/>
+                                    <Button Height="24" Padding="2" Margin="12,0,0,0" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource RefreshGeometry}" Click="onRefreshSourceClick"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <ComboBox Name="cbVocabulary" MinWidth="200" hc:InfoElement.TitleWidth="80" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="词汇表" Style="{StaticResource ComboBoxExtend}" SelectionChanged="onVocabularySelectionChanged"/>
+                                    <Button Height="24" Padding="2" Margin="12,0,0,0" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource RefreshGeometry}" Click="onRefreshVocabularyClick"/>
+                                </StackPanel>
+                                <ListBox Name="lbVocabulary" SelectionMode="Extended"></ListBox>
+                                <ListBox Name="lbTask" IsEnabled="False">
+                                </ListBox>
                             </StackPanel>
                         </Border>
                     </hc:Drawer>

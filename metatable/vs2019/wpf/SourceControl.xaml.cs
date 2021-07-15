@@ -41,6 +41,13 @@ namespace hkg.metatable
                 control.txtAttribute.Text = _source["attribute"];
                 control.txtExpression.Text = _source["expression"];
             }
+            public void RefreshActivateLocation(string _location)
+            {
+                if (_location.Equals("public"))
+                    control.rbPublic.IsEnabled = true;
+                else if (_location.Equals("private"))
+                    control.rbPrivate.IsEnabled = true;
+            }
         }
 
         public SourceFacade facade { get; set; }
@@ -49,6 +56,9 @@ namespace hkg.metatable
         public SourceControl()
         {
             InitializeComponent();
+            dpMainPage.Visibility = System.Windows.Visibility.Hidden;
+            rbPrivate.IsEnabled = false;
+            rbPublic.IsEnabled = false;
             spRenameSource.Visibility = System.Windows.Visibility.Collapsed;
             pageDetail.Visibility = System.Windows.Visibility.Hidden;
         }
@@ -85,18 +95,21 @@ namespace hkg.metatable
         {
             var bridge = facade.getViewBridge() as ISourceViewBridge;
             bridge.OnLocationChanged("public");
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onPrivateChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as ISourceViewBridge;
             bridge.OnLocationChanged("private");
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onLocalChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as ISourceViewBridge;
             bridge.OnLocationChanged("local");
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onDeleteSourceClick(object sender, System.Windows.RoutedEventArgs e)

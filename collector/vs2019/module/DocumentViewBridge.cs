@@ -74,5 +74,15 @@ namespace hkg.collector
             req._uuid = Any.FromStringAry(_uuid);
             service.PostBatchDelete(req);
         }
+
+        public void OnRefreshMetatableSourceSubmit(string _location)
+        {
+            view.OnRefreshMetatableSourceSubmit(_location);
+        }
+
+        public void OnRefreshMetatableVocabularySubmit(string _location)
+        {
+            view.OnRefreshMetatableVocabularySubmit(_location);
+        }
     }
 }

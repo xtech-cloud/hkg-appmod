@@ -14,10 +14,10 @@ namespace hkg.collector
     {
         public class Source
         {
-            public string address { get; set; }
-            public string name { get; set; }
-            public string attribute { get; set; }
-            public string expression { get; set; }
+            public Any address { get; set; }
+            public Any name { get; set; }
+            public Any attribute { get; set; }
+            public Any expression { get; set; }
         }
         public QueryStatus status { get; set; }
         public Source[] entity{ get; set; }
@@ -27,9 +27,9 @@ namespace hkg.collector
     {
         public class Vocabulary
         {
-            public string name { get; set; }
-            public string[] label { get; set; }
-            public string[] value { get; set; }
+            public Any name { get; set; }
+            public Any label { get; set; }
+            public Any value { get; set; }
         }
         public QueryStatus status { get; set; }
         public Vocabulary[] entity{ get; set; }
@@ -53,17 +53,5 @@ namespace hkg.collector
         }
         public QueryStatus status { get; set; }
         public Schema[] entity{ get; set; }
-    }
-
-
-
-    public class QueryModel : Model
-    {
-        public const string NAME = "hkg.collector.QueryModel";
-
-        protected override void setup()
-        {
-            getLogger().Trace("setup hkg.collector.QueryModel");
-        }
     }
 }

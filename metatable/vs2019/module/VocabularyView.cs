@@ -12,11 +12,12 @@ namespace hkg.metatable
         private Facade facade = null;
         private VocabularyModel model = null;
         private IVocabularyUiBridge bridge = null;
+        private VocabularyService service = null;
 
         protected override void preSetup()
         {
             model = findModel(VocabularyModel.NAME) as VocabularyModel;
-            var service = findService(VocabularyService.NAME) as VocabularyService;
+            service = findService(VocabularyService.NAME) as VocabularyService;
             facade = findFacade("hkg.metatable.VocabularyFacade");
             VocabularyViewBridge vb = new VocabularyViewBridge();
             vb.view = this;
@@ -27,6 +28,7 @@ namespace hkg.metatable
         protected override void setup()
         {
             getLogger().Trace("setup VocabularyView");
+            addRouter("/Application/Auth/Signin/Success", handleAuthSigninSuccess);
         }
 
         protected override void postSetup()
@@ -72,5 +74,22 @@ namespace hkg.metatable
         {
             model.UpdateGet(_uuid);
         }
+        private void handleAuthSigninSuccess(Model.Status _status, object _data)
+        {
+            Dictionary<string, Any> data = (Dictionary<string, Any>)_data;
+            if (data["location"].AsString().Equals("public"))
+            {
+                service.domainPublic = data["host"].AsString();
+            }
+            if (data["location"].AsString().Equals("private"))
+            {
+                service.domainPrivate = data["host"].AsString();
+            }
+            service.accessToken = data["accessToken"].AsString();
+            service.uuid = data["uuid"].AsString();
+            bridge.RefreshActivateLocation(data["location"].AsString());
+            service.CreateAlias();
+        }
+
     }
 }

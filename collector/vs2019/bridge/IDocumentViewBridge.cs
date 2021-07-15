@@ -11,6 +11,8 @@ namespace hkg.collector
         void OnTidySubmit(string _uuid, string _host, Dictionary<string, string> _rule);
         void OnDeleteSubmit(string _uuid);
         void OnBatchDeleteSubmit(string[] _uuid);
+        void OnRefreshMetatableSourceSubmit(string _location);
+        void OnRefreshMetatableVocabularySubmit(string _location);
 
         void OnLocationChanged(string _location);
         void OnGetSubmit(string _uuid);

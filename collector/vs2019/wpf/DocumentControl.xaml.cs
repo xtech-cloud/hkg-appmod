@@ -8,6 +8,7 @@ using System.Text.Encodings.Web;
 using System.Windows.Documents;
 using System;
 using HandyControl.Controls;
+using XTC.oelMVCS;
 
 namespace hkg.collector
 {
@@ -33,6 +34,12 @@ namespace hkg.collector
             public bool IsTidy { get; set; }
         }
 
+        public class Task
+        {
+            public string Name { get; set; }
+            public string Address { get; set; }
+        }
+
         public class DocumentUiBridge : IDocumentUiBridge
         {
             public DocumentControl control { get; set; }
@@ -47,7 +54,7 @@ namespace hkg.collector
                 Growl.Warning(_message, "StatusGrowl");
             }
 
-            public void RefreshList(long _total, List<Dictionary<string, string>> _list)
+            public void RefreshList(long _total, List<Dictionary<string, Any>> _list)
             {
                 control.DocumentList.Clear();
                 control.TotalDocumentList.Clear();
@@ -56,25 +63,25 @@ namespace hkg.collector
                 foreach (var v in _list)
                 {
                     Document doc = new Document();
-                    doc.UUID = v["uuid"];
-                    doc.Name = v["name"];
-                    doc.Address = v["address"];
-                    doc.RawText = v["rawText"];
-                    doc.Keyword = v["keyword"];
-                    doc.TidyText = prettyJson(v["tidyText"]);
+                    doc.UUID = v["uuid"].AsString();
+                    doc.Name = v["name"].AsString();
+                    doc.Address = v["address"].AsString();
+                    doc.RawText = v["rawText"].AsString();
+                    doc.Keyword = v["keyword"].AsString();
+                    doc.TidyText = prettyJson(v["tidyText"].AsString());
                     doc.IsScrape = !string.IsNullOrEmpty(doc.RawText);
                     doc.IsTidy = !string.IsNullOrEmpty(doc.TidyText);
-                    doc.CrawledAt = v["crawledAt"];
+                    doc.CrawledAt = v["crawledAt"].AsString();
                     control.TotalDocumentList.Add(doc);
                     doc.Source = doc.Address;
                     foreach (var source in control.source)
                     {
-                        string address;
+                        Any address;
                         if (source.TryGetValue("address", out address))
                         {
-                            if (doc.Address.StartsWith(address))
+                            if (doc.Address.StartsWith(address.AsString()))
                             {
-                                doc.Source = source["name"];
+                                doc.Source = source["name"].AsString();
                                 break;
                             }
                         }
@@ -93,28 +100,28 @@ namespace hkg.collector
                 }
             }
 
-            public void RefreshOne(Dictionary<string, string> _element)
+            public void RefreshOne(Dictionary<string, Any> _element)
             {
-                control.txtUUID.Text = _element["uuid"];
+                control.txtUUID.Text = _element["uuid"].AsString();
             }
 
-            public void RefreshQuerySourceList(List<Dictionary<string, string>> _source)
+            public void RefreshQuerySourceList(List<Dictionary<string, Any>> _source)
             {
                 control.source = _source;
                 control.cbSource.Items.Clear();
                 foreach (var e in control.source)
                 {
-                    control.cbSource.Items.Add(e["name"]);
+                    control.cbSource.Items.Add(e["name"].AsString());
                 }
             }
 
-            public void RefreshQueryVocabularyList(List<Dictionary<string, string>> _vocabulary)
+            public void RefreshQueryVocabularyList(List<Dictionary<string, Any>> _vocabulary)
             {
                 control.vocabulary = _vocabulary;
                 control.cbVocabulary.Items.Clear();
                 foreach (var e in control.vocabulary)
                 {
-                    control.cbVocabulary.Items.Add(e["name"]);
+                    control.cbVocabulary.Items.Add(e["name"].AsString());
                 }
             }
 
@@ -142,16 +149,25 @@ namespace hkg.collector
                     return;
                 }
 
-                foreach (var doc in control.DocumentList)
+                foreach (var task in control.lbTask.Items)
                 {
-                    if (!doc.Name.Equals(_name))
+                    var item = task as ListBoxItem;
+                    string uid = string.Format("{0}{1}", item.Content, item.Uid);
+                    if (!item.Content.Equals(_name) && !item.Uid.Equals(_address))
                         continue;
-                    doc.IsScrape = true;
+                    control.lbTask.Items.Remove(item);
                     break;
+                }
+
+                if(control.lbTask.Items.Count == 0)
+                {
+                    control.lbVocabulary.Visibility = System.Windows.Visibility.Visible;
+                    control.lbTask.Visibility = System.Windows.Visibility.Collapsed;
+                    control.btnStartScrape.IsEnabled = true;
                 }
             }
 
-            public void RefreshQuerySchemaList(List<Dictionary<string, string>> _list)
+            public void RefreshQuerySchemaList(List<Dictionary<string, Any>> _list)
             {
                 control.schema = _list;
             }
@@ -186,15 +202,23 @@ namespace hkg.collector
                     return _uuid.Contains(_item.UUID);
                 });
                 List<Document> found = new List<Document>();
-                foreach(var doc in control.DocumentList)
+                foreach (var doc in control.DocumentList)
                 {
                     if (_uuid.Contains(doc.UUID))
                         found.Add(doc);
                 }
-                foreach(var doc in found)
+                foreach (var doc in found)
                 {
                     control.DocumentList.Remove(doc);
                 }
+            }
+
+            public void RefreshActivateLocation(string _location)
+            {
+                if (_location.Equals("public"))
+                    control.rbPublic.IsEnabled = true;
+                else if (_location.Equals("private"))
+                    control.rbPrivate.IsEnabled = true;
             }
         }
 
@@ -202,33 +226,53 @@ namespace hkg.collector
 
         public ObservableCollection<Document> DocumentList { get; set; }
         public List<Document> TotalDocumentList { get; set; }
-        private List<Dictionary<string, string>> source = new List<Dictionary<string, string>>();
-        private List<Dictionary<string, string>> vocabulary = new List<Dictionary<string, string>>();
-        private List<Dictionary<string, string>> schema = new List<Dictionary<string, string>>();
+        private List<Dictionary<string, Any>> source = new List<Dictionary<string, Any>>();
+        private List<Dictionary<string, Any>> vocabulary = new List<Dictionary<string, Any>>();
+        private List<Dictionary<string, Any>> schema = new List<Dictionary<string, Any>>();
         private Dictionary<string, Dictionary<string, string>> rule = new Dictionary<string, Dictionary<string, string>>();
+        private string location_ { get; set; }
 
         public DocumentControl()
         {
             DocumentList = new ObservableCollection<Document>();
             TotalDocumentList = new List<Document>();
             InitializeComponent();
+            btnScrape.Visibility = System.Windows.Visibility.Hidden;
+            dpMainPage.Visibility = System.Windows.Visibility.Hidden;
+            rbPrivate.IsEnabled = false;
+            rbPublic.IsEnabled = false;
+            lbVocabulary.Visibility = System.Windows.Visibility.Visible;
+            lbTask.Visibility = System.Windows.Visibility.Collapsed;
+#if DEBUG
+            rbPrivate.IsEnabled = true;
+            rbPublic.IsEnabled = true;
+#endif
         }
         private void onPublicChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IDocumentViewBridge;
             bridge.OnLocationChanged("public");
+            location_ = "public";
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
+            btnScrape.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onPrivateChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IDocumentViewBridge;
             bridge.OnLocationChanged("private");
+            location_ = "private";
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
+            btnScrape.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onLocalChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IDocumentViewBridge;
             bridge.OnLocationChanged("local");
+            location_ = "local";
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
+            btnScrape.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onDocumentSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -264,14 +308,9 @@ namespace hkg.collector
 
             foreach (var v in vocabulary)
             {
-                if (!v["name"].Equals(item))
+                if (!v["name"].AsString().Equals(item))
                     continue;
-                string value = v["value"];
-                if (value.StartsWith("["))
-                    value = value.Remove(0, 1);
-                if (value.EndsWith("]"))
-                    value = value.Remove(value.Length - 1, 1);
-                foreach (var str in value.Split(','))
+                foreach (var str in v["value"].AsStringAry())
                 {
                     lbVocabulary.Items.Add(str);
                 }
@@ -280,8 +319,6 @@ namespace hkg.collector
 
         private void onStartScrapeClick(object sender, System.Windows.RoutedEventArgs e)
         {
-            DocumentList.Clear();
-
             var bridge = facade.getViewBridge() as IDocumentViewBridge;
 
             string sourceName = cbSource.SelectedItem as string;
@@ -291,55 +328,52 @@ namespace hkg.collector
             if (string.IsNullOrEmpty(vocabularyName))
                 return;
 
-            string expression = "";
-            string attribute = "";
+            Any expression = Any.FromStringAry(new string[0]);
+            Any attribute = Any.FromStringAry(new string[0]);
             foreach (var v in source)
             {
-                if (!v["name"].Equals(sourceName))
+                if (!v["name"].AsString().Equals(sourceName))
                     continue;
 
                 if (!v.TryGetValue("expression", out expression))
                 {
-                    expression = "";
+                    expression = Any.FromString("");
                 }
                 if (!v.TryGetValue("attribute", out attribute))
                 {
-                    attribute = "";
+                    attribute = Any.FromString("");
                 }
             }
-            string keyword = "";
+            Any keyword = Any.FromStringAry(new string[0]);
             foreach (var v in vocabulary)
             {
-                if (!v["name"].Equals(vocabularyName))
+                if (!v["name"].AsString().Equals(vocabularyName))
                     continue;
 
                 if (!v.TryGetValue("label", out keyword))
                 {
-                    keyword = "";
+                    keyword = Any.FromStringAry(new string[0]);
                 }
             }
 
+            lbVocabulary.Visibility = System.Windows.Visibility.Collapsed;
+            lbTask.Visibility = System.Windows.Visibility.Visible;
+            btnStartScrape.IsEnabled = false;
             foreach (var item in lbVocabulary.SelectedItems)
             {
                 string name = item as string;
                 List<string> kw = new List<string>();
-                string address = expression.Replace("{?}", name);
-                Document doc = new Document();
-                doc.Name = name;
-                doc.Address = sourceName;
-                doc.IsScrape = false;
-                doc.IsTidy = false;
-                DocumentList.Add(doc);
-                if (keyword.StartsWith("["))
-                    keyword = keyword.Remove(0, 1);
-                if (keyword.EndsWith("]"))
-                    keyword = keyword.Remove(keyword.Length - 1, 1);
-                foreach (var str in keyword.Split(','))
+                string address = expression.AsString().Replace("{?}", name);
+                ListBoxItem task = new ListBoxItem();
+                task.Content = name;
+                task.Uid = string.Format("{0}{1}", name, address);
+                lbTask.Items.Add(task);
+                foreach (var str in keyword.AsStringAry())
                 {
                     kw.Add(str);
                 }
 
-                bridge.OnScrapeSubmit(name, kw.ToArray(), address, attribute);
+                bridge.OnScrapeSubmit(name, kw.ToArray(), address, attribute.AsString());
             }
         }
         private void onTidyClick(object sender, System.Windows.RoutedEventArgs e)
@@ -353,9 +387,9 @@ namespace hkg.collector
                 string sourceName = "";
                 foreach (var s in source)
                 {
-                    if (doc.Address.StartsWith(s["address"]))
+                    if (doc.Address.StartsWith(s["address"].AsString()))
                     {
-                        sourceName = s["name"];
+                        sourceName = s["name"].AsString();
                         break;
                     }
                 }
@@ -403,6 +437,18 @@ namespace hkg.collector
                 uuid.Add(doc.UUID);
             }
             bridge.OnBatchDeleteSubmit(uuid.ToArray());
+        }
+
+        private void onRefreshSourceClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var bridge = facade.getViewBridge() as IDocumentViewBridge;
+            bridge.OnRefreshMetatableSourceSubmit(location_);
+        }
+
+        private void onRefreshVocabularyClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var bridge = facade.getViewBridge() as IDocumentViewBridge;
+            bridge.OnRefreshMetatableVocabularySubmit(location_);
         }
     }
 }

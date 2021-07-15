@@ -12,11 +12,12 @@ namespace hkg.metatable
         private Facade facade = null;
         private SchemaModel model = null;
         private ISchemaUiBridge bridge = null;
+        private SchemaService service = null;
 
         protected override void preSetup()
         {
             model = findModel(SchemaModel.NAME) as SchemaModel;
-            var service = findService(SchemaService.NAME) as SchemaService;
+            service = findService(SchemaService.NAME) as SchemaService;
             facade = findFacade("hkg.metatable.SchemaFacade");
             SchemaViewBridge vb = new SchemaViewBridge();
             vb.view = this;
@@ -27,6 +28,7 @@ namespace hkg.metatable
         protected override void setup()
         {
             getLogger().Trace("setup SchemaView");
+            addRouter("/Application/Auth/Signin/Success", handleAuthSigninSuccess);
         }
 
         protected override void postSetup()
@@ -89,5 +91,22 @@ namespace hkg.metatable
         {
             model.UpdateGet(_uuid);
         }
+        private void handleAuthSigninSuccess(Model.Status _status, object _data)
+        {
+            Dictionary<string, Any> data = (Dictionary<string, Any>)_data;
+            if (data["location"].AsString().Equals("public"))
+            {
+                service.domainPublic = data["host"].AsString();
+            }
+            if (data["location"].AsString().Equals("private"))
+            {
+                service.domainPrivate = data["host"].AsString();
+            }
+            service.accessToken = data["accessToken"].AsString();
+            service.uuid = data["uuid"].AsString();
+            bridge.RefreshActivateLocation(data["location"].AsString());
+            service.CreateAlias();
+        }
+
     }
 }

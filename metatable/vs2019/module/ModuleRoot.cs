@@ -56,8 +56,6 @@ namespace hkg.metatable
 
 
             framework_.getStaticPipe().RegisterModel(BlankModel.NAME, new BlankModel());
-            framework_.getStaticPipe().RegisterView(QueryView.NAME, new QueryView());
-            framework_.getStaticPipe().RegisterService(QueryService.NAME, new QueryService());
         }
 
         public void Cancel()

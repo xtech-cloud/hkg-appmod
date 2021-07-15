@@ -4,12 +4,17 @@ using System.Net;
 using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
+using System.Threading.Tasks;
 
 namespace hkg.collector
 {
     public class DocumentService : Service
     {
         public const string NAME = "hkg.collector.DocumentService";
+        public string domainPublic = "";
+        public string domainPrivate = "";
+        public string accessToken = "";
+        public string uuid = "";
         private DocumentModel model = null;
         public string domain { get; private set; }
 
@@ -24,7 +29,14 @@ namespace hkg.collector
         }
         public void SwitchLocation(string _location)
         {
-            domain = getConfig()[string.Format("domain.{0}", _location)].AsString();
+            if (_location.Equals("public"))
+                domain = domainPublic;
+            else if (_location.Equals("private"))
+                domain = domainPrivate;
+
+            //开发时使用
+            if (string.IsNullOrEmpty(domain))
+                domain = getConfig()[string.Format("_.domain.{0}", _location)].AsString();
         }
 
         public void PostScrape(Proto.DocumentScrapeRequest _request)
@@ -46,7 +58,7 @@ namespace hkg.collector
             {
                 getLogger().Error(_err.getMessage());
                 Model.Status reply = Model.Status.New<Model.Status>(_err.getCode(), _err.getMessage());
-                model.UpdateScrapeFinish(reply, null, null); 
+                model.UpdateScrapeFinish(reply, null, null);
             }, null);
         }
 
@@ -91,7 +103,7 @@ namespace hkg.collector
             {
                 getLogger().Error(_err.getMessage());
                 Model.Status reply = Model.Status.New<Model.Status>(_err.getCode(), _err.getMessage());
-                model.UpdateTidyFinish(reply, null); 
+                model.UpdateTidyFinish(reply, null);
             }, null);
         }
 
@@ -142,8 +154,12 @@ namespace hkg.collector
 
 
 
-
         protected override void asyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        {
+            doAsyncRequest(_url, _method, _params, _onReply, _onError, _options);    
+        }
+
+        protected async void doAsyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
             string reply = "";
             try
@@ -160,7 +176,7 @@ namespace hkg.collector
                 {
                     reqStream.Write(data, 0, data.Length);
                 }
-                HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
+                HttpWebResponse rsp = await req.GetResponseAsync() as HttpWebResponse;
                 if (rsp == null)
                 {
                     _onError(Error.NewNullErr("HttpWebResponse is null"));

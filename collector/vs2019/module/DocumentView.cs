@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using XTC.oelMVCS;
 
@@ -29,9 +30,7 @@ namespace hkg.collector
         protected override void setup()
         {
             getLogger().Trace("setup DocumentView");
-            route("/hkg/metatable/Query/Response/Source/List", handleMetatableQuerySourceList);
-            route("/hkg/metatable/Query/Response/Vocabulary/List", handleMetatableQueryVocabularyList);
-            route("/hkg/metatable/Query/Response/Schema/List", handleMetatableQuerySchemaList);
+            addRouter("/Application/Auth/Signin/Success", handleAuthSigninSuccess);
         }
 
         protected override void postSetup()
@@ -51,19 +50,19 @@ namespace hkg.collector
 
         public void RefreshList(long _total, List<DocumentModel.DocumentStatus.Document> _document)
         {
-            List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
+            List<Dictionary<string, Any>> list = new List<Dictionary<string, Any>>();
             foreach (var v in _document)
             {
-                Dictionary<string, string> param = new Dictionary<string, string>();
-                param["uuid"] = v.entity._uuid.AsString();
-                param["name"] = v.entity._name.AsString();
-                param["keyword"] = v.entity._keyword.AsString();
-                param["address"] = v.entity._address.AsString();
-                param["rawText"] = v.entity._rawText.AsString();
-                param["tidyText"] = v.entity._tidyText.AsString();
+                Dictionary<string, Any> param = new Dictionary<string, Any>();
+                param["uuid"] = v.entity._uuid;
+                param["name"] = v.entity._name;
+                param["keyword"] = v.entity._keyword;
+                param["address"] = v.entity._address;
+                param["rawText"] = v.entity._rawText;
+                param["tidyText"] = v.entity._tidyText;
                 long timestamp = v.entity._crawledAt.AsInt64();
                 DateTimeOffset dto = DateTimeOffset.FromUnixTimeSeconds(timestamp);
-                param["crawledAt"] = dto.LocalDateTime.ToString();
+                param["crawledAt"] = Any.FromString(dto.LocalDateTime.ToString());
                 list.Add(param);
             }
             bridge.RefreshList(_total, list);
@@ -71,14 +70,14 @@ namespace hkg.collector
 
         public void RefreshOne(DocumentModel.DocumentStatus.Document _document)
         {
-            Dictionary<string, string> param = new Dictionary<string, string>();
-            param["uuid"] = _document.entity._uuid.AsString();
-            param["name"] = _document.entity._name.AsString();
-            param["keyword"] = _document.entity._keyword.AsString();
-            param["address"] = _document.entity._address.AsString();
-            param["rawText"] = _document.entity._rawText.AsString();
-            param["tidyText"] = _document.entity._tidyText.AsString();
-            param["crawleAt"] = _document.entity._crawledAt.AsString();
+            Dictionary<string, Any> param = new Dictionary<string, Any>();
+            param["uuid"] = _document.entity._uuid;
+            param["name"] = _document.entity._name;
+            param["keyword"] = _document.entity._keyword;
+            param["address"] = _document.entity._address;
+            param["rawText"] = _document.entity._rawText;
+            param["tidyText"] = _document.entity._tidyText;
+            param["crawleAt"] = _document.entity._crawledAt;
             bridge.RefreshOne(param);
         }
 
@@ -130,50 +129,70 @@ namespace hkg.collector
             model.Broadcast("/hkg/metatable/Query/Request/Schema/List", param);
         }
 
-        private void handleMetatableQuerySourceList(Model.Status _status, object _data)
+        public void OnRefreshMetatableSourceSubmit(string _location)
         {
-            string json = (string)_data;
-            var result = JsonSerializer.Deserialize<MetatableSourceListReply>(json);
-            List<Dictionary<string, string>> source = new List<Dictionary<string, string>>();
-            if (0 == result.status.code)
+            var externalService = findService("hkg.metatable.SourceService");
+            externalService.CallAlias(string.Format("/List@{0}", _location), (_parameter) =>
             {
-                foreach (var e in result.entity)
-                {
-                    Dictionary<string, string> p = new Dictionary<string, string>();
-                    p["address"] = e.address;
-                    p["name"] = e.name;
-                    p["expression"] = e.expression;
-                    p["attribute"] = e.attribute;
-                    source.Add(p);
-                }
-            }
-            bridge.RefreshQuerySourceList(source);
+
+            }, (_reply) =>
+             {
+                 var result = JsonSerializer.Deserialize<MetatableSourceListReply>(_reply, getOptions());
+                 List<Dictionary<string, Any>> source = new List<Dictionary<string, Any>>();
+                 if (0 == result.status.code)
+                 {
+                     foreach (var e in result.entity)
+                     {
+                         Dictionary<string, Any> p = new Dictionary<string, Any>();
+                         p["address"] = e.address;
+                         p["name"] = e.name;
+                         p["expression"] = e.expression;
+                         p["attribute"] = e.attribute;
+                         source.Add(p);
+                     }
+                 }
+                 bridge.RefreshQuerySourceList(source);
+             }, (_err) =>
+             {
+                 bridge.Alert(_err.getMessage());
+             }, null);
         }
 
-        private void handleMetatableQueryVocabularyList(Model.Status _status, object _data)
+        public void OnRefreshMetatableVocabularySubmit(string _location)
         {
-            string json = (string)_data;
-            var result = JsonSerializer.Deserialize<MetatableVocabularyListReply>(json);
-            List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
-            if (0 == result.status.code)
+            var externalService = findService("hkg.metatable.VocabularyService");
+            externalService.CallAlias(string.Format("/List@{0}", _location), (_parameter) =>
             {
-                foreach (var e in result.entity)
-                {
-                    Dictionary<string, string> p = new Dictionary<string, string>();
-                    p["name"] = e.name;
-                    p["label"] = Any.FromStringAry(e.label).AsString();
-                    p["value"] = Any.FromStringAry(e.value).AsString();
-                    list.Add(p);
-                }
-            }
-            bridge.RefreshQueryVocabularyList(list);
+            }, (_reply) =>
+             {
+                 var result = JsonSerializer.Deserialize<MetatableVocabularyListReply>(_reply, getOptions());
+                 List<Dictionary<string, Any>> list = new List<Dictionary<string, Any>>();
+                 if (0 == result.status.code)
+                 {
+                     foreach (var e in result.entity)
+                     {
+                         Dictionary<string, Any> p = new Dictionary<string, Any>();
+                         p["name"] = e.name;
+                         p["label"] = e.label;
+                         p["value"] = e.value;
+                         list.Add(p);
+                     }
+                 }
+                 bridge.RefreshQueryVocabularyList(list);
+
+             }, (_err) =>
+             {
+                 bridge.Alert(_err.getMessage());
+             }, null);
+
         }
 
         private void handleMetatableQuerySchemaList(Model.Status _status, object _data)
         {
+            /*
             string json = (string)_data;
             var result = JsonSerializer.Deserialize<MetatableSchemaListReply>(json);
-            List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
+            List<Dictionary<string, Any>> list = new List<Dictionary<string, Any>>();
             Dictionary<string, Dictionary<string, string>> expression = new Dictionary<string, Dictionary<string, string>>();
             if (0 == result.status.code)
             {
@@ -218,6 +237,32 @@ namespace hkg.collector
             }
             bridge.RefreshQuerySchemaList(list);
             bridge.RefreshQuerySchemaRuleExpression(expression);
+            */
+        }
+
+        private void handleAuthSigninSuccess(Model.Status _status, object _data)
+        {
+            Dictionary<string, Any> data = (Dictionary<string, Any>)_data;
+            if (data["location"].AsString().Equals("public"))
+            {
+                service.domainPublic = data["host"].AsString();
+            }
+            if (data["location"].AsString().Equals("private"))
+            {
+                service.domainPrivate = data["host"].AsString();
+            }
+            service.accessToken = data["accessToken"].AsString();
+            service.uuid = data["uuid"].AsString();
+            bridge.RefreshActivateLocation(data["location"].AsString());
+        }
+
+        private JsonSerializerOptions getOptions()
+        {
+            var options = new JsonSerializerOptions();
+            options.WriteIndented = true;
+            options.Converters.Add(new AnyProtoConverter());
+            options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+            return options;
         }
     }
 }

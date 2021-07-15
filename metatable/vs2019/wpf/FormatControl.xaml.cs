@@ -71,16 +71,28 @@ namespace hkg.metatable
                     control.PatternList.Add(p);
                 }
             }
+
+            public void RefreshActivateLocation(string _location)
+            {
+                if (_location.Equals("public"))
+                    control.rbPublic.IsEnabled = true;
+                else if (_location.Equals("private"))
+                    control.rbPrivate.IsEnabled = true;
+            }
         }
 
         public FormatFacade facade { get; set; }
 
         public ObservableCollection<PatternInfo> PatternList { get; set; }
 
+
         public FormatControl()
         {
             PatternList = new ObservableCollection<PatternInfo>();
             InitializeComponent();
+            dpMainPage.Visibility = System.Windows.Visibility.Hidden;
+            rbPrivate.IsEnabled = false;
+            rbPublic.IsEnabled = false;
             spRenameFormat.Visibility = System.Windows.Visibility.Collapsed;
             pageDetail.Visibility = System.Windows.Visibility.Hidden;
         }
@@ -117,18 +129,21 @@ namespace hkg.metatable
         {
             var bridge = facade.getViewBridge() as IFormatViewBridge;
             bridge.OnLocationChanged("public");
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onPrivateChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IFormatViewBridge;
             bridge.OnLocationChanged("private");
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onLocalChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IFormatViewBridge;
             bridge.OnLocationChanged("local");
+            dpMainPage.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void onDeleteFormatClick(object sender, System.Windows.RoutedEventArgs e)
