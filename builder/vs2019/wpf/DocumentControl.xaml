@@ -27,14 +27,14 @@
         <Border DockPanel.Dock="Left" Style="{StaticResource BorderRegion}" Width="260" Effect="{StaticResource EffectShadow1}">
             <StackPanel Margin="24">
                 <TextBlock HorizontalAlignment="Left" Margin="0 6 0 0" Text="存储位置" Style="{StaticResource TextBlockSubTitle}"/>
-                <RadioButton Margin="0, 12, 0, 0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="公有云" Checked="onPublicChecked"/>
-                <RadioButton Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content=" 私有云" Checked="onPrivateChecked"/>
-                <RadioButton Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="本地" IsEnabled="False" Checked="onLocalChecked"/>
-                <Button Content="格式化新文档" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onFormatClick"/>
+                <RadioButton Name="rbPublic" Margin="0, 12, 0, 0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="公有云" Checked="onPublicChecked"/>
+                <RadioButton Name="rbPrivate" Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="私有云" Checked="onPrivateChecked"/>
+                <Button Name="btnSync" Content="刷新缓存" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onSyncClick"/>
+                <Button Name="btnFormat" Content="格式化新文档" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onFormatClick"/>
             </StackPanel>
         </Border>
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}" Margin="16 0 0 0">
-            <DockPanel>
+            <DockPanel Name="dpMain">
                 <DockPanel Margin="20" DockPanel.Dock="Left" Width="400">
                     <hc:SimplePanel DockPanel.Dock="Top">
                         <TextBlock Text="文档列表" Style="{StaticResource TextBlockSubTitle}" HorizontalAlignment="Left"  />
@@ -55,6 +55,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
                         <StackPanel Orientation="Horizontal">
+                            <Button Content="刷新" Width="140" Margin="16,0,0,0"  Click="onRefreshClick" VerticalAlignment="Bottom"/>
                             <Button Content="删除" Width="140" Margin="16,0,0,0"  Click="onDeleteClick" VerticalAlignment="Bottom"/>
                         </StackPanel>
                     </hc:SimplePanel>
@@ -89,7 +90,7 @@
                             <StackPanel Margin="24">
                                 <Button Content="开始格式化" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onStartFormatClick"/>
                                 <ComboBox Name="cbFormat"  hc:InfoElement.TitleWidth="80" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="格式表" Style="{StaticResource ComboBoxExtend}" Margin="0,8,0,0"/>
-                                <ListBox Name="lbDocument"></ListBox>
+                                <ListBox Name="lbDocument" SelectionMode="Extended" ></ListBox>
                             </StackPanel>
                         </Border>
                     </hc:Drawer>

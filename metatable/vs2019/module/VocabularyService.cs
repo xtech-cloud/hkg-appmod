@@ -26,19 +26,25 @@ namespace hkg.metatable
         {
             getLogger().Trace("setup VocabularyService");
         }
-        public void CreateAlias()
+
+        public void CreatePublicAlias()
         {
             createAlias("/List@public", string.Format("{0}/hkg/metatable/Vocabulary/List", domainPublic), "POST", false, new Dictionary<string, Any>
             {
                 {"offset", Any.FromInt64(0) },
                 {"count", Any.FromInt64(int.MaxValue) },
             });
+        }
+
+        public void CreatePrivateAlias()
+        {
             createAlias("/List@private", string.Format("{0}/hkg/metatable/Vocabulary/List", domainPrivate), "POST", false, new Dictionary<string, Any>
             {
                 {"offset", Any.FromInt64(0) },
                 {"count", Any.FromInt64(int.MaxValue) },
             });
         }
+
 
         public void SwitchLocation(string _location)
         {
@@ -58,9 +64,7 @@ namespace hkg.metatable
 
             post(string.Format("{0}/hkg/metatable/Vocabulary/ImportYaml", domain), paramMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyProtoConverter());
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                 //TODO
                 Proto.ListRequest req = new Proto.ListRequest();
                 req._offset = Any.FromInt64(0);
@@ -81,9 +85,7 @@ namespace hkg.metatable
 
             post(string.Format("{0}/hkg/metatable/Vocabulary/List", domain), paramMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyProtoConverter());
-                var rsp = JsonSerializer.Deserialize<Proto.VocabularyListResponse>(_reply, options);
+                var rsp = JsonSerializer.Deserialize<Proto.VocabularyListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                 Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
                 model.UpdateList(status, rsp._entity);
             }, (_err) =>
@@ -102,9 +104,7 @@ namespace hkg.metatable
 
             post(string.Format("{0}/hkg/metatable/Vocabulary/Find", domain), paramMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyProtoConverter());
-                var rsp = JsonSerializer.Deserialize<Proto.VocabularyFindResponse>(_reply, options);
+                var rsp = JsonSerializer.Deserialize<Proto.VocabularyFindResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                 VocabularyModel.VocabularyStatus status = Model.Status.New<VocabularyModel.VocabularyStatus>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
                 model.Broadcast("/hkg/metatable/Vocabulary/Find", rsp);
             }, (_err) =>
@@ -121,9 +121,7 @@ namespace hkg.metatable
 
             post(string.Format("{0}/hkg/metatable/Vocabulary/Delete", domain), paramMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyProtoConverter());
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                 //TODO
                 Proto.ListRequest req = new Proto.ListRequest();
                 req._offset = Any.FromInt64(0);
@@ -146,9 +144,7 @@ namespace hkg.metatable
                 req.Method = _method;
                 req.ContentType =
                 "application/json;charset=utf-8";
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyProtoConverter());
-                byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, options);
+                byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, JsonOptions.DefaultSerializerOptions);
                 req.ContentLength = data.Length;
                 using (Stream reqStream = req.GetRequestStream())
                 {

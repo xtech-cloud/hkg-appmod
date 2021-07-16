@@ -14,7 +14,11 @@ namespace app
 
         protected override void setup()
         {
-            route("/module/view/attach", this.handleAttachView);
+            addRouter("/module/view/attach", this.handleAttachView);
+        }
+
+        protected override void postSetup()
+        {
         }
 
         private void handleAttachView(Model.Status _status, object _data)
@@ -22,7 +26,7 @@ namespace app
             MainWindow mainWindow = App.Current.MainWindow as MainWindow;
             getLogger().Trace("attach view");
             Dictionary<string, object> data = _data as Dictionary<string, object>;
-            foreach(string key in data.Keys)
+            foreach (string key in data.Keys)
             {
                 mainWindow.AddPage(key, data[key]);
             }

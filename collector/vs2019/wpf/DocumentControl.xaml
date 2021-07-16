@@ -29,7 +29,7 @@
                 <TextBlock HorizontalAlignment="Left" Margin="0 6 0 0" Text="存储位置" Style="{StaticResource TextBlockSubTitle}"/>
                 <RadioButton Name="rbPublic" Margin="0, 12, 0, 0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="公有云" Checked="onPublicChecked"/>
                 <RadioButton Name="rbPrivate" Margin="0" BorderThickness="1" Style="{StaticResource RadioButtonIcon}" Content="私有云" Checked="onPrivateChecked"/>
-                <Button Name="btnSync" Content="同步元表" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onSyncClick"/>
+                <Button Name="btnSync" Content="刷新缓存" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onSyncClick"/>
                 <Button Name="btnScrape" Content="采集" Margin="0,64,0,0" HorizontalAlignment="Stretch" Click="onScrapeClick"/>
             </StackPanel>
         </Border>

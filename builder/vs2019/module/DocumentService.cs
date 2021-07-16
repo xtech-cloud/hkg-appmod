@@ -10,9 +10,13 @@ namespace hkg.builder
     public class DocumentService : Service
     {
         public const string NAME = "hkg.builder.DocumentService";
-        private DocumentModel model = null;
+        public string domainPublic = "";
+        public string domainPrivate = "";
+        public string accessToken = "";
+        public string uuid = "";
         public string domain { get; private set; }
 
+        private DocumentModel model = null;
         protected override void preSetup()
         {
             model = findModel(DocumentModel.NAME) as DocumentModel;
@@ -25,7 +29,14 @@ namespace hkg.builder
 
         public void SwitchLocation(string _location)
         {
-            domain = getConfig()[string.Format("domain.{0}", _location)].AsString();
+            if (_location.Equals("public"))
+                domain = domainPublic;
+            else if (_location.Equals("private"))
+                domain = domainPrivate;
+
+            //开发时使用
+            if (string.IsNullOrEmpty(domain))
+                domain = getConfig()[string.Format("_.domain.{0}", _location)].AsString();
         }
 
         public void PostMerge(Proto.DocumentMergeRequest _request)
@@ -104,8 +115,7 @@ namespace hkg.builder
                 "application/json;charset=utf-8";
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new AnyProtoConverter());
-                string json = System.Text.Json.JsonSerializer.Serialize(_params, options);
-                byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+                byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, options);
                 req.ContentLength = data.Length;
                 using (Stream reqStream = req.GetRequestStream())
                 {

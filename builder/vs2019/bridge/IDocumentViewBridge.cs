@@ -12,5 +12,8 @@ namespace hkg.builder
         void OnGetSubmit(string _uuid);
 
         void BuildMergeParam(string _formatName, ref string _paramFormat, string _documentCode, ref string[] _paramLabel, ref string[] _paramText);
+
+        void OnRefreshMetatableFormatSubmit(string _location);
+        void OnRefreshCollectorDocumentSubmit(string _location);
     }
 }

@@ -38,13 +38,17 @@ namespace hkg.metatable
                 domain = getConfig()[string.Format("_.domain.{0}", _location)].AsString();
         }
 
-        public void CreateAlias()
+        public void CreatePublicAlias()
         {
             createAlias("/List@public", string.Format("{0}/hkg/metatable/Source/List", domainPublic), "POST", false, new Dictionary<string, Any>
             {
                 {"offset", Any.FromInt64(0) },
                 {"count", Any.FromInt64(int.MaxValue) },
             });
+        }
+
+        public void CreatePrivateAlias()
+        {
             createAlias("/List@private", string.Format("{0}/hkg/metatable/Source/List", domainPrivate), "POST", false, new Dictionary<string, Any>
             {
                 {"offset", Any.FromInt64(0) },
@@ -53,6 +57,7 @@ namespace hkg.metatable
 
         }
 
+
         public void PostImportYaml(Proto.ImportYamlRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
@@ -60,9 +65,7 @@ namespace hkg.metatable
 
             post(string.Format("{0}/hkg/metatable/Source/ImportYaml", domain), paramMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyProtoConverter());
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                 Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
                 //TODO
                 Proto.ListRequest req = new Proto.ListRequest();
@@ -84,9 +87,7 @@ namespace hkg.metatable
 
             post(string.Format("{0}/hkg/metatable/Source/List", domain), paramMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyProtoConverter());
-                var rsp = JsonSerializer.Deserialize<Proto.SourceListResponse>(_reply, options);
+                var rsp = JsonSerializer.Deserialize<Proto.SourceListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                 Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
                 model.UpdateList(status, rsp._entity);
             }, (_err) =>
@@ -105,9 +106,7 @@ namespace hkg.metatable
 
             post(string.Format("{0}/hkg/metatable/Source/Delete", domain), paramMap, (_reply) =>
             {
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyProtoConverter());
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                 Model.Status status = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
                 //TODO
                 Proto.ListRequest req = new Proto.ListRequest();
@@ -131,9 +130,7 @@ namespace hkg.metatable
                 req.Method = _method;
                 req.ContentType =
                 "application/json;charset=utf-8";
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new AnyProtoConverter());
-                byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, options);
+                byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, JsonOptions.DefaultSerializerOptions);
                 req.ContentLength = data.Length;
                 using (Stream reqStream = req.GetRequestStream())
                 {

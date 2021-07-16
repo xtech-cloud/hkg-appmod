@@ -1,9 +1,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Unicode;
 using XTC.oelMVCS;
 
 namespace hkg.builder
@@ -25,7 +23,7 @@ namespace hkg.builder
             DocumentViewBridge vb = new DocumentViewBridge();
             vb.view = this;
             vb.model = model;
-            vb.queryModel = findModel(QueryModel.NAME) as QueryModel;
+            vb.externalModel = findModel(ExternalModel.NAME) as ExternalModel;
             vb.service = service;
             facade.setViewBridge(vb);
         }
@@ -33,8 +31,8 @@ namespace hkg.builder
         protected override void setup()
         {
             getLogger().Trace("setup DocumentView");
-            route("/hkg/metatable/Query/Response/Format/List", handleMetatableQueryFormatList);
-            route("/hkg/collector/Query/Response/Document/List", handleCollectorQueryDocumentList);
+
+            addRouter("/Application/Auth/Signin/Success", handleAuthSigninSuccess);
         }
 
         protected override void postSetup()
@@ -77,79 +75,93 @@ namespace hkg.builder
             bridge.RefreshRemovedDocument(_uuid);
         }
 
-        public void QueryCollectorDocumentList()
+        public void OnRefreshMetatableFormatSubmit(string _location)
         {
-            Dictionary<string, Any> param = new Dictionary<string, Any>();
-            param["domain"] = Any.FromString(service.domain);
-            param["offset"] = Any.FromInt64(0);
-            param["count"] = Any.FromInt64(int.MaxValue);
-            model.Broadcast("/hkg/collector/Query/Request/Document/List", param);
+            var externalService = findService("hkg.metatable.FormatService");
+            externalService.CallAlias(string.Format("/List@{0}", _location), (_parameter) =>
+            {
+            }, (_reply) =>
+             {
+                 var reply = JsonSerializer.Deserialize<External.Metatable.FormatListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+
+                 List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
+                 if (0 == reply.status.code)
+                 {
+                     var modelExternal = findModel(ExternalModel.NAME) as ExternalModel;
+                     modelExternal.SaveMetatableFormatList(reply.entity);
+                     foreach (var e in reply.entity)
+                     {
+                         Dictionary<string, string> pattern = new Dictionary<string, string>();
+                         pattern["name"] = e.name.AsString();
+                         list.Add(pattern);
+                     }
+                 }
+                 bridge.RefreshExternalMetatableFormatList(list);
+             }, (_err) =>
+             {
+                 bridge.Alert(_err.getMessage());
+             }, null);
         }
 
-        public void QueryMetatableFormatList()
+        public void OnRefreshCollectorDocumentSubmit(string _location)
         {
-            Dictionary<string, Any> param = new Dictionary<string, Any>();
-            param["domain"] = Any.FromString(service.domain);
-            param["offset"] = Any.FromInt64(0);
-            param["count"] = Any.FromInt64(int.MaxValue);
-            model.Broadcast("/hkg/metatable/Query/Request/Format/List", param);
+            var externalService = findService("hkg.collector.DocumentService");
+            externalService.CallAlias(string.Format("/List@{0}", _location), (_parameter) =>
+            {
+            }, (_reply) =>
+             {
+                 var reply = JsonSerializer.Deserialize<External.Collector.DocumentListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+
+                 Dictionary<string, Dictionary<string, string>> dict = new Dictionary<string, Dictionary<string, string>>();
+                 if (0 == reply.status.code)
+                 {
+                     var modelExternal = findModel(ExternalModel.NAME) as ExternalModel;
+                     modelExternal.SaveCollectorDocumentList(reply.entity);
+                     foreach (var e in reply.entity)
+                     {
+                         // 相同的名字和标签视为同一个文档
+                         string code = e.name.AsString();
+                         foreach (var k in e.keyword.AsStringAry())
+                         {
+                             code += k;
+                         }
+                         if (!dict.ContainsKey(code))
+                         {
+                             dict[code] = new Dictionary<string, string>();
+                             dict[code]["name"] = e.name.AsString();
+                             dict[code]["code"] = code;
+                             dict[code]["label"] = e.keyword.AsString();
+                         }
+                         e._code = code;
+                     }
+                 }
+                 List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
+                 foreach (var d in dict.Values)
+                 {
+                     list.Add(d);
+                 }
+                 bridge.RefreshExternalCollectorDocumentList(list);
+             }, (_err) =>
+             {
+                 bridge.Alert(_err.getMessage());
+             }, null);
+
         }
 
-        private void handleCollectorQueryDocumentList(Model.Status _status, object _data)
+        private void handleAuthSigninSuccess(Model.Status _status, object _data)
         {
-            string json = (string)_data;
-            var result = JsonSerializer.Deserialize<CollectorDocumentListReply>(json);
-            var modelQuery = findModel(QueryModel.NAME) as QueryModel;
-            modelQuery.SaveCollectorDocumentList(result.entity);
-
-            Dictionary<string, Dictionary<string, string>> dict = new Dictionary<string, Dictionary<string, string>>();
-            if (0 == result.status.code)
+            Dictionary<string, Any> data = (Dictionary<string, Any>)_data;
+            if (data["location"].AsString().Equals("public"))
             {
-                foreach (var e in result.entity)
-                {
-                    // 相同的名字和标签视为同一个文档
-                    string code = e.name;
-                    foreach (var k in e.keyword)
-                    {
-                        code += k;
-                    }
-                    if (!dict.ContainsKey(code))
-                    {
-                        dict[code] = new Dictionary<string, string>();
-                        dict[code]["name"] = e.name;
-                        dict[code]["code"] = code;
-                        dict[code]["label"] = Any.FromStringAry(e.keyword).AsString();
-                    }
-                    e._code = code;
-                }
+                service.domainPublic = data["host"].AsString();
             }
-            List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
-            foreach(var d in dict.Values)
+            if (data["location"].AsString().Equals("private"))
             {
-                list.Add(d);
+                service.domainPrivate = data["host"].AsString();
             }
-            bridge.RefreshQueryCollectorDocumentList(list);
-        }
-
-        private void handleMetatableQueryFormatList(Model.Status _status, object _data)
-        {
-           
-            string json = (string)_data;
-            var result = JsonSerializer.Deserialize<MetatableFormatListReply>(json);
-            var modelQuery = findModel(QueryModel.NAME) as QueryModel;
-            modelQuery.SaveMetatableFormatList(result.entity);
-
-            List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
-            if (0 == result.status.code)
-            {
-                foreach (var e in result.entity)
-                {
-                    Dictionary<string, string> p = new Dictionary<string, string>();
-                    p["name"] = e.name;
-                    list.Add(p);
-                }
-            }
-            bridge.RefreshQueryMetatableFormatList(list);
+            service.accessToken = data["accessToken"].AsString();
+            service.uuid = data["uuid"].AsString();
+            bridge.RefreshActivateLocation(data["location"].AsString());
         }
     }
 }

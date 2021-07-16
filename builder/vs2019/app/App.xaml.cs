@@ -2,6 +2,7 @@
 using System.Windows;
 using XTC.oelMVCS;
 using hkg.builder;
+using System.Collections.Generic;
 
 namespace app
 {
@@ -13,6 +14,8 @@ namespace app
         private Framework framework_ { get; set; }
         private ConsoleLogger logger_ { get; set; }
         private Config config_ { get; set; }
+
+        private BlankModel blankModel { get; set; }
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
@@ -58,7 +61,12 @@ namespace app
 
             base.OnStartup(e);
 
-            
+            Dictionary<string, Any> data = new Dictionary<string, Any>();
+            data["accessToken"] = Any.FromString("");
+            data["uuid"] = Any.FromString("");
+            data["host"] = Any.FromString(domain_private);
+            data["location"] = Any.FromString("private");
+            blankModel.Broadcast("/Application/Auth/Signin/Success", data);
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -70,7 +78,7 @@ namespace app
 
         private void registerMVCS()
         {
-            BlankModel blankModel = new BlankModel();
+            blankModel = new BlankModel();
             framework_.getStaticPipe().RegisterModel(BlankModel.NAME, blankModel);
 
             AppView appView = new AppView();

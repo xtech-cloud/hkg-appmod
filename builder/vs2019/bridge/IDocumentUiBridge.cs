@@ -10,7 +10,8 @@ namespace hkg.builder
         void RefreshList(long _total, List<Dictionary<string, string>> _document);
         void RefreshRemovedDocument(List<string> _uuid);
 
-        void RefreshQueryCollectorDocumentList(List<Dictionary<string, string>> _list);
-        void RefreshQueryMetatableFormatList(List<Dictionary<string, string>> _list);
+        void RefreshExternalCollectorDocumentList(List<Dictionary<string, string>> _list);
+        void RefreshExternalMetatableFormatList(List<Dictionary<string, string>> _list);
+        void RefreshActivateLocation(string _location);
     }
 }

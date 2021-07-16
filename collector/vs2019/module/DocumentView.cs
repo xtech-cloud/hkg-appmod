@@ -53,13 +53,15 @@ namespace hkg.collector
             List<Dictionary<string, Any>> list = new List<Dictionary<string, Any>>();
             foreach (var v in _document)
             {
+                byte[] bytesRaw = Convert.FromBase64String(v.entity._rawText.AsString());
+                byte[] bytesTidy = Convert.FromBase64String(v.entity._tidyText.AsString());
                 Dictionary<string, Any> param = new Dictionary<string, Any>();
                 param["uuid"] = v.entity._uuid;
                 param["name"] = v.entity._name;
                 param["keyword"] = v.entity._keyword;
                 param["address"] = v.entity._address;
-                param["rawText"] = v.entity._rawText;
-                param["tidyText"] = v.entity._tidyText;
+                param["rawText"] = Any.FromString(System.Text.Encoding.UTF8.GetString(bytesRaw));
+                param["tidyText"] = Any.FromString(System.Text.Encoding.UTF8.GetString(bytesTidy));
                 long timestamp = v.entity._crawledAt.AsInt64();
                 DateTimeOffset dto = DateTimeOffset.FromUnixTimeSeconds(timestamp);
                 param["crawledAt"] = Any.FromString(dto.LocalDateTime.ToString());
@@ -110,7 +112,7 @@ namespace hkg.collector
 
             }, (_reply) =>
              {
-                 var result = JsonSerializer.Deserialize<MetatableSourceListReply>(_reply, getOptions());
+                 var result = JsonSerializer.Deserialize<MetatableSourceListReply>(_reply, JsonOptions.DefaultSerializerOptions);
                  List<Dictionary<string, Any>> source = new List<Dictionary<string, Any>>();
                  if (0 == result.status.code)
                  {
@@ -138,7 +140,7 @@ namespace hkg.collector
             {
             }, (_reply) =>
              {
-                 var result = JsonSerializer.Deserialize<MetatableVocabularyListReply>(_reply, getOptions());
+                 var result = JsonSerializer.Deserialize<MetatableVocabularyListReply>(_reply, JsonOptions.DefaultSerializerOptions);
                  List<Dictionary<string, Any>> list = new List<Dictionary<string, Any>>();
                  if (0 == result.status.code)
                  {
@@ -167,7 +169,7 @@ namespace hkg.collector
             {
             }, (_reply) =>
              {
-                 var result = JsonSerializer.Deserialize<MetatableSchemaListReply>(_reply);
+                 var result = JsonSerializer.Deserialize<MetatableSchemaListReply>(_reply, JsonOptions.DefaultSerializerOptions);
                  List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
                  Dictionary<string, Dictionary<string, string>> expression = new Dictionary<string, Dictionary<string, string>>();
                  if (0 == result.status.code)
@@ -225,23 +227,16 @@ namespace hkg.collector
             if (data["location"].AsString().Equals("public"))
             {
                 service.domainPublic = data["host"].AsString();
+                service.CreatePublicAlias();
             }
             if (data["location"].AsString().Equals("private"))
             {
                 service.domainPrivate = data["host"].AsString();
+                service.CreatePrivateAlias();
             }
             service.accessToken = data["accessToken"].AsString();
             service.uuid = data["uuid"].AsString();
             bridge.RefreshActivateLocation(data["location"].AsString());
-        }
-
-        private JsonSerializerOptions getOptions()
-        {
-            var options = new JsonSerializerOptions();
-            options.WriteIndented = true;
-            options.Converters.Add(new AnyProtoConverter());
-            options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-            return options;
         }
     }
 }

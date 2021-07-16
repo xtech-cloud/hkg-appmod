@@ -43,6 +43,7 @@ namespace hkg.collector
 
         public void OnLocationChanged(string _location)
         {
+
             service.useMock = _location.Equals("local");
             service.SwitchLocation(_location);
 

@@ -97,15 +97,16 @@ namespace hkg.metatable
             if (data["location"].AsString().Equals("public"))
             {
                 service.domainPublic = data["host"].AsString();
+                service.CreatePublicAlias();
             }
             if (data["location"].AsString().Equals("private"))
             {
                 service.domainPrivate = data["host"].AsString();
+                service.CreatePrivateAlias();
             }
             service.accessToken = data["accessToken"].AsString();
             service.uuid = data["uuid"].AsString();
             bridge.RefreshActivateLocation(data["location"].AsString());
-            service.CreateAlias();
         }
 
     }

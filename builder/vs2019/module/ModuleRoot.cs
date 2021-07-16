@@ -26,8 +26,8 @@ namespace hkg.builder
             framework_.getStaticPipe().RegisterController(DocumentController.NAME, new DocumentController());
             // 注册服务层
             framework_.getStaticPipe().RegisterService(DocumentService.NAME, new DocumentService());
-    
-            framework_.getStaticPipe().RegisterModel(QueryModel.NAME, new QueryModel());
+
+            framework_.getStaticPipe().RegisterModel(ExternalModel.NAME, new ExternalModel());
         }
 
         public void Cancel()
@@ -41,8 +41,6 @@ namespace hkg.builder
             framework_.getStaticPipe().CancelView(DocumentView.NAME);
             // 注销数据层
             framework_.getStaticPipe().CancelModel(DocumentModel.NAME);
-    
-            framework_.getStaticPipe().CancelModel(QueryModel.NAME);
         }
 
         private Framework framework_ = null;

@@ -90,7 +90,7 @@ namespace hkg.builder
                 return JsonSerializer.Serialize(jsonElement, options);
             }
 
-            public void RefreshQueryCollectorDocumentList(List<Dictionary<string, string>> _list)
+            public void RefreshExternalCollectorDocumentList(List<Dictionary<string, string>> _list)
             {
                 control.collectorDocument = _list;
                 control.lbDocument.Items.Clear();
@@ -103,7 +103,7 @@ namespace hkg.builder
                 }
             }
 
-            public void RefreshQueryMetatableFormatList(List<Dictionary<string, string>> _list)
+            public void RefreshExternalMetatableFormatList(List<Dictionary<string, string>> _list)
             {
                 control.metatableFormat = _list;
                 control.cbFormat.Items.Clear();
@@ -130,6 +130,14 @@ namespace hkg.builder
                     control.DocumentList.Remove(doc);
                 }
             }
+
+            public void RefreshActivateLocation(string _location)
+            {
+                if (_location.Equals("public"))
+                    control.rbPublic.IsEnabled = true;
+                else if (_location.Equals("private"))
+                    control.rbPrivate.IsEnabled = true;
+            }
         }
 
         public DocumentFacade facade { get; set; }
@@ -139,30 +147,48 @@ namespace hkg.builder
 
         private List<Dictionary<string, string>> collectorDocument = new List<Dictionary<string, string>>();
         private List<Dictionary<string, string>> metatableFormat = new List<Dictionary<string, string>>();
-
+        private string location_;
         public DocumentControl()
         {
             DocumentList = new ObservableCollection<Document>();
             TotalDocumentList = new List<Document>();
             InitializeComponent();
+            rbPrivate.IsEnabled = false;
+            rbPublic.IsEnabled = false;
+            btnFormat.Visibility = System.Windows.Visibility.Hidden;
+            btnFormat.IsEnabled = false;
+            btnSync.Visibility = System.Windows.Visibility.Hidden;
+            dpMain.Visibility = System.Windows.Visibility.Hidden;
         }
 
         private void onPublicChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IDocumentViewBridge;
             bridge.OnLocationChanged("public");
+            btnFormat.Visibility = System.Windows.Visibility.Visible;
+            btnSync.Visibility = System.Windows.Visibility.Visible;
+            dpMain.Visibility = System.Windows.Visibility.Visible;
+            location_ = "public";
         }
 
         private void onPrivateChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IDocumentViewBridge;
             bridge.OnLocationChanged("private");
+            btnFormat.Visibility = System.Windows.Visibility.Visible;
+            btnSync.Visibility = System.Windows.Visibility.Visible;
+            dpMain.Visibility = System.Windows.Visibility.Visible;
+            location_ = "private";
         }
 
         private void onLocalChecked(object sender, System.Windows.RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IDocumentViewBridge;
             bridge.OnLocationChanged("local");
+            btnFormat.Visibility = System.Windows.Visibility.Visible;
+            btnSync.Visibility = System.Windows.Visibility.Visible;
+            dpMain.Visibility = System.Windows.Visibility.Visible;
+            location_ = "local";
         }
 
         private void onDocumentSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -251,6 +277,21 @@ namespace hkg.builder
                 uuid.Add(doc.UUID);
             }
             bridge.OnBatchDeleteSubmit(uuid.ToArray());
+        }
+
+        private void onSyncClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var bridge = facade.getViewBridge() as IDocumentViewBridge;
+            bridge.OnRefreshMetatableFormatSubmit(location_);
+            bridge.OnRefreshCollectorDocumentSubmit(location_);
+            btnFormat.IsEnabled = true;
+        }
+
+        private void onRefreshClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            Dictionary<string, string> filter = new Dictionary<string, string>();
+            var bridge = facade.getViewBridge() as IDocumentViewBridge;
+            bridge.OnListSubmit(0, 100);
         }
     }
 }

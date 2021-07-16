@@ -3,7 +3,7 @@
     "app": {
       "commandName": "Project",
       "environmentVariables": {
-        "DOMAIN_PRIVATE": "http://api.meex.cloud:18800"
+        "DOMAIN_PRIVATE": "http://localhost:8080"
       }
     }
   }

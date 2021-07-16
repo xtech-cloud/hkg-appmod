@@ -4,10 +4,10 @@ namespace hkg.builder
 {
     public class DocumentViewBridge : IDocumentViewBridge
     {
-        public DocumentView view{ get; set; }
-        public DocumentService service{ get; set; }
+        public DocumentView view { get; set; }
+        public DocumentService service { get; set; }
         public DocumentModel model { get; set; }
-        public QueryModel queryModel { get; set; }
+        public ExternalModel externalModel { get; set; }
 
         public void OnMergeSubmit(string _name, string[] _label, string[] _text, string _format)
         {
@@ -19,7 +19,7 @@ namespace hkg.builder
 
             service.PostMerge(req);
         }
-        
+
 
         public void OnListSubmit(long _offset, long _count)
         {
@@ -35,9 +35,6 @@ namespace hkg.builder
             service.useMock = _location.Equals("local");
             service.SwitchLocation(_location);
 
-            view.QueryMetatableFormatList();
-            view.QueryCollectorDocumentList();
-
             Proto.ListRequest req = new Proto.ListRequest();
             req._offset = Any.FromInt64(0);
             req._count = Any.FromInt64(int.MaxValue);
@@ -51,7 +48,7 @@ namespace hkg.builder
 
         public void BuildMergeParam(string _formatName, ref string _paramFormat, string _documentCode, ref string[] _paramLabel, ref string[] _paramText)
         {
-            queryModel.BuildMergeParam(_formatName, ref _paramFormat, _documentCode, ref _paramLabel, ref _paramText);
+            externalModel.BuildMergeParam(_formatName, ref _paramFormat, _documentCode, ref _paramLabel, ref _paramText);
         }
 
         public void OnBatchDeleteSubmit(string[] _uuid)
@@ -59,6 +56,16 @@ namespace hkg.builder
             Proto.DocumentBatchDeleteRequest req = new Proto.DocumentBatchDeleteRequest();
             req._uuid = Any.FromStringAry(_uuid);
             service.PostBatchDelete(req);
+        }
+
+        public void OnRefreshMetatableFormatSubmit(string _location)
+        {
+            view.OnRefreshMetatableFormatSubmit(_location);
+        }
+
+        public void OnRefreshCollectorDocumentSubmit(string _location)
+        {
+            view.OnRefreshCollectorDocumentSubmit(_location);
         }
     }
 }
